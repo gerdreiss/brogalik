@@ -13,7 +13,7 @@ type NewState = EventM () (Next AppState)
 
 -- | the module's public function
 tui :: IO ()
-tui = initialState >>= defaultMain appState >>= printExitStatus
+tui = defaultMain appState initialState >>= printExitStatus
   where printExitStatus = putStrLn . stateStatus
 
 
@@ -38,5 +38,30 @@ drawTui state =
 
 -- | handle TUI events
 handleTuiEvent :: AppState -> BrickEvent n e -> NewState
+handleTuiEvent s (VtyEvent (EvKey KLeft _)) = moveWest s
+handleTuiEvent s (VtyEvent (EvKey KRight _)) = moveEast s
+handleTuiEvent s (VtyEvent (EvKey KUp _)) = moveNorth s
+handleTuiEvent s (VtyEvent (EvKey KDown _)) = moveSouth s
+handleTuiEvent s (VtyEvent (EvKey (KChar 'a') _)) = moveWest s
+handleTuiEvent s (VtyEvent (EvKey (KChar 'd') _)) = moveEast s
+handleTuiEvent s (VtyEvent (EvKey (KChar 'w') _)) = moveNorth s
+handleTuiEvent s (VtyEvent (EvKey (KChar 's') _)) = moveSouth s
+handleTuiEvent s (VtyEvent (EvKey (KChar 'n') _)) = newGame s
 handleTuiEvent s (VtyEvent (EvKey (KChar 'q') _)) = halt s
 handleTuiEvent s _ = continue s
+
+
+moveWest :: AppState -> NewState
+moveWest s = continue s { stateStatus = "Moving west..." }
+
+moveEast :: AppState -> NewState
+moveEast s = continue s { stateStatus = "Moving east..." }
+
+moveNorth :: AppState -> NewState
+moveNorth s = continue s { stateStatus = "Moving north..." }
+
+moveSouth :: AppState -> NewState
+moveSouth s = continue s { stateStatus = "Moving south..." }
+
+newGame :: AppState -> NewState
+newGame s = continue initialState

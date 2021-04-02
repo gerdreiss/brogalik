@@ -8,8 +8,8 @@ data AppState = AppState
 
 
 -- | create the initial AppState
-initialState :: IO AppState
-initialState = return AppState
+initialState :: AppState
+initialState = AppState
   { stateTitle  = "Brogalik - Rogue-alike game build with Brick"
   , stateStatus = "New game started"
   }

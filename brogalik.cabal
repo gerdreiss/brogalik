@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ebb3f3d2a4f58dd5c2c5841198f3e382ab5ad9337890e361d80595640914f4d6
+-- hash: a5ec7ce3bcea3490ae6ed01adbbe5a15a8147b9a79728c845d6b4b6a83362ffd
 
 name:           brogalik
 version:        0.1.0.0
@@ -27,6 +27,8 @@ source-repository head
 
 library
   exposed-modules:
+      Data.Brogalik
+      Data.Geom
       UI.TUI.Main
       UI.TUI.State
       UI.TUI.Widgets
@@ -36,8 +38,10 @@ library
       src
   default-extensions: OverloadedStrings
   build-depends:
-      base >=4.7 && <5
+      array
+    , base >=4.7 && <5
     , brick
+    , containers
     , vty
   default-language: Haskell2010
 
@@ -50,9 +54,11 @@ executable brogalik-exe
   default-extensions: OverloadedStrings
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Werror -Wunused-imports -Wwarn=unused-imports
   build-depends:
-      base >=4.7 && <5
+      array
+    , base >=4.7 && <5
     , brick
     , brogalik
+    , containers
     , vty
   default-language: Haskell2010
 
@@ -65,8 +71,10 @@ test-suite brogalik-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      array
+    , base >=4.7 && <5
     , brick
     , brogalik
+    , containers
     , vty
   default-language: Haskell2010
