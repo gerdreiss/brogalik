@@ -1,3 +1,3 @@
 # brogalik
 
-Rogue-alike game built with [Brick](https://github.com/jtdaugherty/brick)
+Roguelike game built with [Brick](https://github.com/jtdaugherty/brick)
