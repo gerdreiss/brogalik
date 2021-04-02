@@ -1,0 +1,72 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: ebb3f3d2a4f58dd5c2c5841198f3e382ab5ad9337890e361d80595640914f4d6
+
+name:           brogalik
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/gerdreiss/brogalik#readme>
+homepage:       https://github.com/gerdreiss/brogalik#readme
+bug-reports:    https://github.com/gerdreiss/brogalik/issues
+author:         Gerd Reiss
+maintainer:     gerd@reiss.pro
+copyright:      Gerd Reiss
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/gerdreiss/brogalik
+
+library
+  exposed-modules:
+      UI.TUI.Main
+      UI.TUI.State
+      UI.TUI.Widgets
+  other-modules:
+      Paths_brogalik
+  hs-source-dirs:
+      src
+  default-extensions: OverloadedStrings
+  build-depends:
+      base >=4.7 && <5
+    , brick
+    , vty
+  default-language: Haskell2010
+
+executable brogalik-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_brogalik
+  hs-source-dirs:
+      app
+  default-extensions: OverloadedStrings
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Werror -Wunused-imports -Wwarn=unused-imports
+  build-depends:
+      base >=4.7 && <5
+    , brick
+    , brogalik
+    , vty
+  default-language: Haskell2010
+
+test-suite brogalik-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_brogalik
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , brick
+    , brogalik
+    , vty
+  default-language: Haskell2010
