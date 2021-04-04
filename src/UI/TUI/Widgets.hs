@@ -20,7 +20,14 @@ import           UI.TUI.State
 
 
 title :: Text -> Widget ()
-title = border . vLimit 1 . vCenter . hCenter . str . unpack
+title =
+  withBorderStyle unicodeBold
+    . border
+    . vLimit 1
+    . vCenter
+    . hCenter
+    . str
+    . unpack
 
 inventory :: Player -> Widget ()
 inventory player =
