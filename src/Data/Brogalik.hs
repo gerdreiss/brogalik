@@ -55,8 +55,9 @@ data Display = Display
 
 
 itemChar :: Item -> Char
-itemChar (GoldItem   _) = '*'
-itemChar (WeaponItem _) = '/'
+itemChar (GoldItem   _    ) = '$'
+itemChar (WeaponItem Axe  ) = 'T'
+itemChar (WeaponItem Sword) = '!'
 
 
 roomFloor :: Pixel
