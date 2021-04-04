@@ -18,7 +18,7 @@ import           Data.Geom
 import           Data.Text
 import           UI.TUI.State
 
-
+-- | The title widget (top)
 title :: Text -> Widget ()
 title =
   withBorderStyle unicodeBold
@@ -29,6 +29,7 @@ title =
     . str
     . unpack
 
+-- | The inventory widget (center left)
 inventory :: Player -> Widget ()
 inventory player =
   withBorderStyle unicodeBold
@@ -48,6 +49,7 @@ inventory player =
       . playerWeapons
       $ player
 
+-- | The game field (center right)
 gameField :: Brogalik -> Widget ()
 gameField brogalik =
   withBorderStyle unicodeBold
@@ -66,6 +68,7 @@ gameField brogalik =
   reducedSize size = size - Size (_leftWidth + _leftPaddingV * 2 + 4)
                                  (_bottomHeight + _topPaddingV * 2 + 7)
 
+-- | The help widget (bottom left)
 help :: Widget ()
 help =
   withBorderStyle unicodeBold
@@ -83,7 +86,7 @@ help =
         , str "q  Exit"
         ]
 
-
+-- | The status widget (bottom right)
 status :: AppState -> Widget ()
 status =
   withBorderStyle unicodeBold
@@ -95,6 +98,8 @@ status =
     . strWrap
     . unpack
     . stateStatus
+
+-- | Constants
 
 _leftWidth :: Int
 _leftWidth = 20
