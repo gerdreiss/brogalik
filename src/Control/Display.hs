@@ -60,12 +60,10 @@ drawRect rect pixel =
   height                      = y + h - 1
 
 drawRoom :: Room -> Display -> Display
-drawRoom room display =
-  let items    = M.toList (roomItems room)
-      display' = fillRect rect roomFloor display
-  in  foldl' folderF display' items
+drawRoom room display = foldl' foldFunc display' items
  where
-  rect                     = roomRect room
-  Rect (Pos roomX roomY) _ = rect
-  folderF dspl (Pos itemX itemY, item) =
+  foldFunc dspl (Pos itemX itemY, item) =
     drawPixel (Pos (roomX + itemX) (roomY + itemY)) (itemChar item) dspl
+  display'                        = fillRect rect roomFloor display
+  items                           = M.toList (roomItems room)
+  rect@(Rect (Pos roomX roomY) _) = roomRect room

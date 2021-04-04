@@ -5,6 +5,7 @@ module UI.TUI.Main
 import qualified UI.TUI.Widgets                as W
 
 import           Brick
+import           Data.Brogalik
 import           Graphics.Vty.Input.Events
 import           UI.TUI.State
 
@@ -31,7 +32,10 @@ drawTui :: AppState -> [Widget ()]
 drawTui state =
   [ vBox
       [ W.title (stateTitle state)
-      , hBox [W.inventory state, W.gameField state]
+      , hBox
+        [ W.inventory . brogalikPlayer . stateBrogalik $ state
+        , W.gameField state
+        ]
       , hBox [W.help, W.status state]
       ]
   ]

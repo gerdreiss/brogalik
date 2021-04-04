@@ -12,7 +12,7 @@ generateBrogalik = Brogalik
   , brogalikPlayer = Player { playerRoom    = Index 0
                             , playerPos     = Pos 0 0
                             , playerGold    = 0
-                            , playerWeapons = []
+                            , playerWeapons = [Sword]
                             }
   }
  where

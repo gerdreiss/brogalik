@@ -10,6 +10,7 @@ import           Brick
 import           Brick.Widgets.Border
 import           Brick.Widgets.Center
 import           Brick.Widgets.Core
+import           Data.Brogalik
 import           Data.Text
 import           UI.TUI.State
 
@@ -18,23 +19,30 @@ title :: Text -> Widget ()
 title = border . vLimit 1 . vCenter . hCenter . str . unpack
 
 
-inventory :: AppState -> Widget ()
-inventory s =
+inventory :: Player -> Widget ()
+inventory player =
   border
     . hLimit _leftWidth
-    . padLeft (Pad 3)
-    . padTop (Pad 1)
+    . padLeft _padL
+    . padTop _padT
     . padBottom Max
-    . strWrap
-    $ "Inventory"
+    . padRight Max
+    $ vBox
+        [ str ("Gold: " <> gold)
+        , str "Weapons:"
+        , padLeft (Pad 1) . vBox $ fmap (str . ("- " <>)) weapons
+        ]
+ where
+  gold    = show . playerGold $ player
+  weapons = fmap show . playerWeapons $ player
 
 
 gameField :: AppState -> Widget ()
 gameField s =
   border
     . hBox
-    $ [ padLeft (Pad 3)
-        . padTop (Pad 1)
+    $ [ padLeft _padL
+        . padTop _padT
         . padRight Max
         . padBottom Max
         . strWrap
@@ -47,7 +55,7 @@ help =
     . hLimit _leftWidth
     . vLimit _bottomHeight
     . hBox
-    $ [ padLeft (Pad 3)
+    $ [ padLeft _padL
         . padRight Max
         . vBox
         $ [ str "a  Move west"
@@ -63,7 +71,7 @@ status :: AppState -> Widget ()
 status =
   border
     . vLimit _bottomHeight
-    . padLeft (Pad 3)
+    . padLeft _padL
     . padRight Max
     . padBottom Max
     . strWrap
@@ -76,3 +84,9 @@ _leftWidth = 20
 
 _bottomHeight :: Int
 _bottomHeight = 6
+
+_padL :: Padding
+_padL = Pad 3
+
+_padT :: Padding
+_padT = Pad 1
