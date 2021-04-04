@@ -30,7 +30,7 @@ inventory player =
     $ vBox
         [ str ("Gold: " <> gold)
         , str "Weapons:"
-        , padLeft (Pad 1) . vBox $ fmap (str . ("- " <>)) weapons
+        , padLeft (Pad 1) . vBox . fmap (str . ("* " <>)) $ weapons
         ]
  where
   gold    = show . playerGold $ player
