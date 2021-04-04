@@ -51,3 +51,12 @@ data Display = Display
   , displayPixels :: Array Pos Pixel
   }
   deriving Show
+
+
+itemChar :: Item -> Char
+itemChar (GoldItem   _) = '*'
+itemChar (WeaponItem _) = '/'
+
+
+roomFloor :: Pixel
+roomFloor = '.'
