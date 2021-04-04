@@ -56,8 +56,8 @@ gameField brogalik =
         $ mkDisplay (reducedSize . brogalikSize $ brogalik) ' '
       ]
  where
-  reducedSize size = size ^-^ Size (_leftWidth + _leftPaddingV * 4)
-                                   (_bottomHeight + _topPaddingV * 4 + 4)
+  reducedSize size = size ^-^ Size (_leftWidth + _leftPaddingV * 2 + 4)
+                                   (_bottomHeight + _topPaddingV * 2 + 7)
 
 help :: Widget ()
 help =
