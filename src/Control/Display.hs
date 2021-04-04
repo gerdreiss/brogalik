@@ -4,7 +4,6 @@ module Control.Display where
 
 import qualified Data.Map                      as M
 
-import           Control.Brogalik
 import           Data.Array
 import           Data.Brogalik
 import           Data.Foldable
@@ -64,6 +63,6 @@ drawRoom room display = foldl' foldFunc display' items
  where
   foldFunc dspl (Pos itemX itemY, item) =
     drawPixel (Pos (roomX + itemX) (roomY + itemY)) (itemChar item) dspl
-  display'                        = fillRect rect roomFloor display
-  items                           = M.toList (roomItems room)
-  rect@(Rect (Pos roomX roomY) _) = roomRect room
+  Rect (Pos roomX roomY) _ = roomRect room
+  display'                 = fillRect (roomRect room) roomFloor display
+  items                    = M.toList (roomItems room)

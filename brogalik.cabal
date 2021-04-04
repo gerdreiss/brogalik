@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 04a89eaf8fd1554a6132bb0ac183606111d91839e1e7f78eece5b6ce3c5c2918
+-- hash: 65bb2228d05f7d0c9b4e5c4f212c7f1e426fc2bb33416c287f85c4fd61beb8a4
 
 name:           brogalik
 version:        0.1.0.0
@@ -29,8 +29,10 @@ library
   exposed-modules:
       Control.Brogalik
       Control.Display
+      Control.Geom
       Data.Brogalik
       Data.Geom
+      Data.StateT
       UI.TUI.Main
       UI.TUI.State
       UI.TUI.Widgets
@@ -44,6 +46,7 @@ library
     , base >=4.7 && <5
     , brick
     , containers
+    , terminal-size
     , text
     , vty
   default-language: Haskell2010
@@ -62,6 +65,7 @@ executable brogalik-exe
     , brick
     , brogalik
     , containers
+    , terminal-size
     , text
     , vty
   default-language: Haskell2010
@@ -80,6 +84,7 @@ test-suite brogalik-test
     , brick
     , brogalik
     , containers
+    , terminal-size
     , text
     , vty
   default-language: Haskell2010

@@ -42,6 +42,7 @@ data Player = Player
 data Brogalik = Brogalik
   { brogalikRooms  :: Array (Index Room) Room
   , brogalikPlayer :: Player
+  , brogalikSize   :: Size
   }
   deriving Show
 
