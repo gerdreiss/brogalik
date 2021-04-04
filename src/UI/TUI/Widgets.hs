@@ -10,11 +10,12 @@ import           Brick
 import           Brick.Widgets.Border
 import           Brick.Widgets.Center
 import           Brick.Widgets.Core
+import           Data.Text
 import           UI.TUI.State
 
 
-title :: AppState -> Widget ()
-title = border . vLimit 1 . vCenter . hCenter . str . stateTitle
+title :: Text -> Widget ()
+title = border . vLimit 1 . vCenter . hCenter . str . unpack
 
 
 inventory :: AppState -> Widget ()
@@ -66,6 +67,7 @@ status =
     . padRight Max
     . padBottom Max
     . strWrap
+    . unpack
     . stateStatus
 
 

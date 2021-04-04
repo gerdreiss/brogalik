@@ -2,10 +2,11 @@ module UI.TUI.State where
 
 import           Control.Brogalik
 import           Data.Brogalik
+import           Data.Text
 
 data AppState = AppState
-  { stateTitle    :: String
-  , stateStatus   :: String
+  { stateTitle    :: Text
+  , stateStatus   :: Text
   , stateBrogalik :: Brogalik
   }
 

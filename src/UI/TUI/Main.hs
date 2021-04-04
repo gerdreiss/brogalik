@@ -14,7 +14,7 @@ type NewState = EventM () (Next AppState)
 -- | the module's public function
 tui :: IO ()
 tui = defaultMain appState initialState >>= printExitStatus
-  where printExitStatus = putStrLn . stateStatus
+  where printExitStatus = print . stateStatus
 
 
 -- | create the application state
@@ -30,7 +30,7 @@ appState = App { appDraw         = drawTui
 drawTui :: AppState -> [Widget ()]
 drawTui state =
   [ vBox
-      [ W.title state
+      [ W.title (stateTitle state)
       , hBox [W.inventory state, W.gameField state]
       , hBox [W.help, W.status state]
       ]
