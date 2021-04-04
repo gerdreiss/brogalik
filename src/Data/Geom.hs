@@ -45,3 +45,20 @@ instance Semigroup Pos where
 
 instance Monoid Pos where
   mempty = Pos 0 0
+
+instance Num Size where
+  (Size w1 h1) + (Size w2 h2) = Size (w1 + w2) (h1 + h2)
+  (Size w1 h1) - (Size w2 h2) = Size (w1 - w2) (h1 - h2)
+  (Size w1 h1) * (Size w2 h2) = Size (w1 * w2) (h1 * h2)
+  abs (Size w h) = Size (abs w) (abs h)
+  signum (Size w h) = Size (signum w) (signum h)
+  negate (Size w h) = Size (negate w) (negate h)
+  fromInteger x = Size (fromInteger x) (fromInteger x)
+
+
+
+directionChanges :: Direction -> PosDelta
+directionChanges West  = PosDelta (-1) 0
+directionChanges East  = PosDelta 1 0
+directionChanges North = PosDelta 0 (-1)
+directionChanges South = PosDelta 0 1

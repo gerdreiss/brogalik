@@ -8,6 +8,7 @@ module UI.TUI.Widgets
 
 import           Brick
 import           Brick.Widgets.Border
+import           Brick.Widgets.Border.Style
 import           Brick.Widgets.Center
 import           Brick.Widgets.Core
 import           Control.Brogalik
@@ -17,34 +18,33 @@ import           Data.Geom
 import           Data.Text
 import           UI.TUI.State
 
-import           Control.Geom
-import qualified Data.Text                     as T
 
 title :: Text -> Widget ()
 title = border . vLimit 1 . vCenter . hCenter . str . unpack
 
 inventory :: Player -> Widget ()
 inventory player =
-  border
+  withBorderStyle unicodeBold
+    . border
     . hLimit _leftWidth
     . padLeft _leftPadding
     . padTop _topPadding
     . padBottom Max
     . padRight Max
-    $ vBox
-        [ str . ("Gold: " <>) . show . playerGold $ player
-        , str "Weapons:"
-        , padLeft (Pad 1)
-        . vBox
-        . fmap (str . ("* " <>) . show)
-        . playerWeapons
-        $ player
-        ]
-
+    $ vBox [gold, str "Weapons:", weaponList]
+ where
+  gold = str . ("Gold: " <>) . show . playerGold $ player
+  weaponList =
+    padLeft (Pad 1)
+      . vBox
+      . fmap (str . ("* " <>) . show)
+      . playerWeapons
+      $ player
 
 gameField :: Brogalik -> Widget ()
 gameField brogalik =
-  border
+  withBorderStyle unicodeBold
+    . border
     . hBox
     $ [ padLeft _leftPadding
         . padTop _topPadding
@@ -56,28 +56,31 @@ gameField brogalik =
         $ mkDisplay (reducedSize . brogalikSize $ brogalik) ' '
       ]
  where
-  reducedSize size = size ^-^ Size (_leftWidth + _leftPaddingV * 2 + 4)
-                                   (_bottomHeight + _topPaddingV * 2 + 7)
+  reducedSize size = size - Size (_leftWidth + _leftPaddingV * 2 + 4)
+                                 (_bottomHeight + _topPaddingV * 2 + 7)
 
 help :: Widget ()
 help =
-  border
+  withBorderStyle unicodeBold
+    . border
     . hLimit _leftWidth
     . vLimit _bottomHeight
-    . hBox
-    $ [ padLeft _leftPadding
-        .   padRight Max
-        $   str "a  Move west"
-        <=> str "d  Move east"
-        <=> str "w  Move north"
-        <=> str "s  Move south"
-        <=> str "n  New Game"
-        <=> str "q  Exit"
-      ]
+    . padLeft _leftPadding
+    . padRight Max
+    $ vBox
+        [ str "a  Move west"
+        , str "d  Move east"
+        , str "w  Move north"
+        , str "s  Move south"
+        , str "n  New Game"
+        , str "q  Exit"
+        ]
+
 
 status :: AppState -> Widget ()
 status =
-  border
+  withBorderStyle unicodeBold
+    . border
     . vLimit _bottomHeight
     . padLeft _leftPadding
     . padRight Max

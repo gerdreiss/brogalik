@@ -3,7 +3,6 @@ module Control.Brogalik where
 import qualified Data.Map                      as M
 
 import           Control.Display
-import           Control.Geom
 import           Data.Array
 import           Data.Brogalik
 import           Data.Foldable
