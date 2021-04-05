@@ -59,7 +59,7 @@ gameField brogalik = do
            && _gameFieldMinHeight <= gameFieldH
          then str $ renderBrogalik brogalik (Size gameFieldW gameFieldH)
          else str . L.concat
-           $ [ "Too small!"
+           $ [ "Terminal too small!"
              , "\nTerminal size = "
              , show w
              , "x"

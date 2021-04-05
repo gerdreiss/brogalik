@@ -1,12 +1,11 @@
 module Data.Geom where
 
-import           Data.Array (Ix)
+import           Data.Array                     ( Ix )
 
 -- | Types
 type Pixel = Char
 
 type X = Int
-
 type Y = Int
 
 -- | position in the game field, starting in the top left corner
@@ -14,7 +13,6 @@ data Pos = Pos X Y
   deriving (Eq, Ord, Ix, Show)
 
 type Width = Int
-
 type Height = Int
 
 data Size = Size Width Height
@@ -52,8 +50,8 @@ instance Monoid Pos where
 
 -- | Helper functions
 directionChanges :: Direction -> PosDelta
-directionChanges West = PosDelta (-1) 0
-directionChanges East = PosDelta 1 0
+directionChanges West  = PosDelta (-1) 0
+directionChanges East  = PosDelta 1 0
 directionChanges North = PosDelta 0 (-1)
 directionChanges South = PosDelta 0 1
 

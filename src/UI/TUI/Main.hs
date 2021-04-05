@@ -1,6 +1,9 @@
-module UI.TUI.Main (tui) where
+module UI.TUI.Main
+  ( tui
+  ) where
 
-import qualified UI.TUI.Widgets as W
+import qualified UI.TUI.Widgets                as W
+
 import           Brick
 import           Control.Brogalik
 import           Data.Brogalik
@@ -14,26 +17,29 @@ type NewState = EventM () (Next AppState)
 -- | the module's public function
 tui :: Width -> Height -> IO ()
 tui w h = defaultMain appState (initialState $ Size w h) >>= printExitStatus
-  where
-    printExitStatus = print . stateStatus
+  where printExitStatus = print . stateStatus
 
 -- | create the application state
 appState :: App AppState e ()
-appState = App { appDraw = drawTui
+appState = App { appDraw         = drawTui
                , appChooseCursor = showFirstCursor
-               , appStartEvent = return
-               , appHandleEvent = handleTuiEvent
-               , appAttrMap = const $ attrMap mempty mempty
+               , appStartEvent   = return
+               , appHandleEvent  = handleTuiEvent
+               , appAttrMap      = const $ attrMap mempty mempty
                }
 
 -- | draw the TUI
 drawTui :: AppState -> [Widget ()]
-drawTui state = [ vBox
-                    [ W.title (stateTitle state)
-                    , hBox
-                        [ W.inventory . brogalikPlayer . stateBrogalik $ state
-                        , W.gameField . stateBrogalik $ state]
-                    , hBox [W.help, W.status state]]]
+drawTui state =
+  [ vBox
+      [ W.title (stateTitle state)
+      , hBox
+        [ W.inventory . brogalikPlayer . stateBrogalik $ state
+        , W.gameField . stateBrogalik $ state
+        ]
+      , hBox [W.help, W.status state]
+      ]
+  ]
 
 -- | handle TUI events
 handleTuiEvent :: AppState -> BrickEvent n e -> NewState
@@ -51,18 +57,16 @@ handleTuiEvent s (VtyEvent (EvKey (KChar 'q') _)) = halt s
 handleTuiEvent s _ = continue s
 
 movePlayer :: Data.Geom.Direction -> AppState -> NewState
-movePlayer d s = continue
-  s { stateStatus = pack $ "Moving " <> show d <> "..."
-    , stateBrogalik = brogalikMove d (stateBrogalik s)
-    }
+movePlayer d s = continue s { stateStatus = pack $ "Moving " <> show d <> "..."
+                            , stateBrogalik = brogalikMove d (stateBrogalik s)
+                            }
 
 resizeBrogalik :: Width -> Height -> AppState -> NewState
-resizeBrogalik w h s = continue
-  s { stateStatus = pack $ "Terminal size : " <> show w <> "x" <> show h
-    , stateBrogalik = doResize w h (stateBrogalik s)
-    }
-  where
-    doResize w h brogalik = brogalik { brogalikSize = Size w h }
+resizeBrogalik w h s = continue s
+  { stateStatus   = pack $ "Terminal size : " <> show w <> "x" <> show h
+  , stateBrogalik = doResize w h (stateBrogalik s)
+  }
+  where doResize w h brogalik = brogalik { brogalikSize = Size w h }
 
 newGame :: AppState -> NewState
 newGame = continue . initialState . brogalikSize . stateBrogalik
