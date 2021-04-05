@@ -65,8 +65,9 @@ movePlayer d s = continue s { stateStatus = pack $ "Moving " <> show d <> "..."
 resizeBrogalik :: Width -> Height -> AppState -> NewState
 resizeBrogalik w h s = continue s
   { stateStatus   = pack $ "Terminal size : " <> show w <> "x" <> show h
-  , stateBrogalik = brogalikResize (Size w h) (stateBrogalik s)
+  , stateBrogalik = doResize (Size w h) (stateBrogalik s)
   }
+  where doResize size brogalik = brogalik { brogalikSize = size }
 
 newGame :: AppState -> NewState
 newGame s = continue (initialState w h)

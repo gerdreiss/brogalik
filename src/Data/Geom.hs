@@ -1,6 +1,6 @@
 module Data.Geom where
 
-import           Data.Array
+import           Data.Array                     ( Ix )
 
 -- | Types
 

@@ -61,7 +61,7 @@ gameField brogalik =
         . padBottom Max
         . strWrap
         . renderDisplay
-        . renderBrogalik brogalik
+        . displayBrogalik brogalik
         $ mkDisplay (reducedSize . brogalikSize $ brogalik) ' '
       ]
  where

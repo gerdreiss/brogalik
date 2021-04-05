@@ -14,7 +14,7 @@ generateBrogalik w h = Brogalik
   , brogalikPlayer = Player { playerRoom    = Index 0
                             , playerPos     = Pos 0 0
                             , playerGold    = 0
-                            , playerWeapons = [Sword]
+                            , playerWeapons = []
                             }
   , brogalikSize   = Size w h
   }
@@ -34,8 +34,6 @@ addItem :: Pos -> Item -> Room -> Room
 addItem pos item room = room { roomItems = M.insert pos item items }
   where items = roomItems room
 
-brogalikResize :: Size -> Brogalik -> Brogalik
-brogalikResize size brogalik = brogalik { brogalikSize = size }
 
 brogalikMove :: Direction -> Brogalik -> Brogalik
 brogalikMove direction rogalik = rogalik
@@ -43,8 +41,9 @@ brogalikMove direction rogalik = rogalik
   }
   where player = brogalikPlayer rogalik
 
-renderBrogalik :: Brogalik -> Display -> Display
-renderBrogalik brogalik = renderPlayer brogalik . renderRooms brogalik
+
+displayBrogalik :: Brogalik -> Display -> Display
+displayBrogalik brogalik = displayPlayer brogalik . displayRooms brogalik
 
 
 playerMove :: Direction -> Player -> Player
@@ -54,8 +53,9 @@ playerMove direction player = player
  where
   newPos (Pos x y) (PosDelta changeX changeY) = Pos (x + changeX) (y + changeY)
 
-renderPlayer :: Brogalik -> Display -> Display
-renderPlayer brogalik = drawPixel playerScreenPos '@'
+
+displayPlayer :: Brogalik -> Display -> Display
+displayPlayer brogalik = displayPixel playerScreenPos '@'
  where
   playerScreenPos      = playerRoomPos <> playerPos player
   Rect playerRoomPos _ = roomRect (rooms ! playerRoom player)
@@ -63,9 +63,9 @@ renderPlayer brogalik = drawPixel playerScreenPos '@'
   rooms                = brogalikRooms brogalik
 
 
-renderRooms :: Brogalik -> Display -> Display
-renderRooms rogalik display = foldl' draw display rooms
+displayRooms :: Brogalik -> Display -> Display
+displayRooms rogalik display = foldl' draw display rooms
  where
-  draw  = flip drawRoom
+  draw  = flip displayRoom
   rooms = elems (brogalikRooms rogalik)
 

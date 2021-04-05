@@ -2,8 +2,14 @@ module Data.Brogalik where
 
 import qualified Data.Map                      as M
 
-import           Data.Array
-import           Data.Geom
+import           Data.Array                     ( Array
+                                                , Ix
+                                                )
+import           Data.Geom                      ( Pixel
+                                                , Pos
+                                                , Rect
+                                                , Size
+                                                )
 
 
 data Weapon
