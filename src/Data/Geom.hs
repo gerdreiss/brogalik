@@ -55,10 +55,14 @@ instance Num Size where
   negate (Size w h) = Size (negate w) (negate h)
   fromInteger x = Size (fromInteger x) (fromInteger x)
 
-
+-- | Helper functions
 
 directionChanges :: Direction -> PosDelta
 directionChanges West  = PosDelta (-1) 0
 directionChanges East  = PosDelta 1 0
 directionChanges North = PosDelta 0 (-1)
 directionChanges South = PosDelta 0 1
+
+
+minSize :: Size
+minSize = Size 80 30

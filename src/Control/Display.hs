@@ -24,10 +24,35 @@ fillDisplay pixel display = _fillRect rect pixel display
   Display size _ = display
   rect           = Rect (Pos 0 0) size
 
--- | Render the display to a string
+-- | Render the brogalik into a string
+renderBrogalik :: Brogalik -> Size -> String
+renderBrogalik brogalik size =
+  renderDisplay . displayBrogalik brogalik $ mkDisplay size ' '
+
+-- | Render the display into a string
 renderDisplay :: Display -> String
 renderDisplay (Display size@(Size width height) pixels) = unlines
   [ [ pixels ! Pos x y | x <- [0 .. width - 1] ] | y <- [0 .. height - 1] ]
+
+-- | Display the Brogalik
+displayBrogalik :: Brogalik -> Display -> Display
+displayBrogalik brogalik = displayPlayer brogalik . displayRooms brogalik
+
+-- | Display the player within the Brogalik
+displayPlayer :: Brogalik -> Display -> Display
+displayPlayer brogalik = displayPixel playerScreenPos '@'
+ where
+  playerScreenPos      = playerRoomPos <> playerPos player
+  Rect playerRoomPos _ = roomRect (rooms ! playerRoom player)
+  player               = brogalikPlayer brogalik
+  rooms                = brogalikRooms brogalik
+
+-- | Display the rooms within the Brogalik
+displayRooms :: Brogalik -> Display -> Display
+displayRooms rogalik display = foldl' draw display roomList
+ where
+  draw     = flip displayRoom
+  roomList = elems (brogalikRooms rogalik)
 
 -- | Place the given room in the given display
 displayRoom :: Room -> Display -> Display
@@ -55,7 +80,8 @@ _fillRect rect pixel display = display
   Rect    (Pos  rectX rectY ) (Size rectW rectH) = rect
   Display (Size width height) pixels             = display
 
-
+--
+--
 -- | helper functions, currently unused
 _drawVLine :: Pos -> Height -> Pixel -> Display -> Display
 _drawVLine (Pos x y) height =

@@ -42,30 +42,9 @@ brogalikMove direction rogalik = rogalik
   where player = brogalikPlayer rogalik
 
 
-displayBrogalik :: Brogalik -> Display -> Display
-displayBrogalik brogalik = displayPlayer brogalik . displayRooms brogalik
-
-
 playerMove :: Direction -> Player -> Player
 playerMove direction player = player
   { playerPos = newPos (playerPos player) (directionChanges direction)
   }
  where
   newPos (Pos x y) (PosDelta changeX changeY) = Pos (x + changeX) (y + changeY)
-
-
-displayPlayer :: Brogalik -> Display -> Display
-displayPlayer brogalik = displayPixel playerScreenPos '@'
- where
-  playerScreenPos      = playerRoomPos <> playerPos player
-  Rect playerRoomPos _ = roomRect (rooms ! playerRoom player)
-  player               = brogalikPlayer brogalik
-  rooms                = brogalikRooms brogalik
-
-
-displayRooms :: Brogalik -> Display -> Display
-displayRooms rogalik display = foldl' draw display rooms
- where
-  draw  = flip displayRoom
-  rooms = elems (brogalikRooms rogalik)
-

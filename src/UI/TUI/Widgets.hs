@@ -1,22 +1,15 @@
-module UI.TUI.Widgets
-  ( title
-  , inventory
-  , gameField
-  , help
-  , status
-  ) where
+module UI.TUI.Widgets (title, inventory, gameField, help, status) where
 
-import           Brick
-import           Brick.Widgets.Border
-import           Brick.Widgets.Border.Style
-import           Brick.Widgets.Center
-import           Brick.Widgets.Core
-import           Control.Brogalik
-import           Control.Display
-import           Data.Brogalik
-import           Data.Geom
-import           Data.Text
-import           UI.TUI.State
+import Brick
+import Brick.Widgets.Border (border)
+import Brick.Widgets.Border.Style (unicodeBold)
+import Brick.Widgets.Center (hCenter, vCenter)
+import Control.Display (renderBrogalik)
+import Data.Brogalik
+import Data.Geom (Size (Size), minSize)
+import qualified Data.List as L
+import Data.Text (Text, unpack)
+import UI.TUI.State (AppState (stateStatus))
 
 -- | The title widget (top)
 title :: Text -> Widget ()
@@ -39,34 +32,29 @@ inventory player =
     . padTop _topPadding
     . padBottom Max
     . padRight Max
-    $ vBox [gold, str "Weapons:", weaponList]
- where
-  gold = str . ("Gold: " <>) . show . playerGold $ player
-  weaponList =
-    padLeft (Pad 1)
-      . vBox
-      . fmap (str . ("* " <>) . show)
-      . playerWeapons
-      $ player
+    $ vBox [gold, weapons, weaponList]
+  where
+    gold = str . ("Gold: " <>) . show . playerGold $ player
+    weapons = str $ if L.null . playerWeapons $ player then "Weapons: none" else "Weapons: "
+    weaponList = padLeft (Pad 1) . vBox . fmap mkListItem . playerWeapons $ player
+    mkListItem = str . ("* " <>) . show
 
 -- | The game field (center right)
 gameField :: Brogalik -> Widget ()
-gameField brogalik =
-  withBorderStyle unicodeBold
-    . border
-    . hBox
-    $ [ padLeft _leftPadding
+gameField brogalik = do
+  let widthReduct = _leftWidth + _leftPaddingV * 2 + 4 -- 4 = number of vertical borders
+      heightReduct = _bottomHeight + _topPaddingV * 2 + 7 -- 7 = number of horizontal borders
+      sizeReduct = Size widthReduct heightReduct
+      gameFieldSize = brogalikSize brogalik - sizeReduct
+   in withBorderStyle unicodeBold
+        . border
+        . padLeft _leftPadding
         . padTop _topPadding
         . padRight Max
         . padBottom Max
-        . strWrap
-        . renderDisplay
-        . displayBrogalik brogalik
-        $ mkDisplay (reducedSize . brogalikSize $ brogalik) ' '
-      ]
- where
-  reducedSize size = size - Size (_leftWidth + _leftPaddingV * 2 + 4)
-                                 (_bottomHeight + _topPaddingV * 2 + 7)
+        $ if gameFieldSize < minSize
+          then strWrap "The terminal size is too small. Please increase."
+          else str $ renderBrogalik brogalik gameFieldSize
 
 -- | The help widget (bottom left)
 help :: Widget ()
@@ -78,13 +66,13 @@ help =
     . padLeft _leftPadding
     . padRight Max
     $ vBox
-        [ str "a  Move west"
-        , str "d  Move east"
-        , str "w  Move north"
-        , str "s  Move south"
-        , str "n  New Game"
-        , str "q  Exit"
-        ]
+      [ str "a  Move west",
+        str "d  Move east",
+        str "w  Move north",
+        str "s  Move south",
+        str "n  New Game",
+        str "q  Exit"
+      ]
 
 -- | The status widget (bottom right)
 status :: AppState -> Widget ()
@@ -100,7 +88,6 @@ status =
     . stateStatus
 
 -- | Constants
-
 _leftWidth :: Int
 _leftWidth = 20
 
