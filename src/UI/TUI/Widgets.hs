@@ -36,8 +36,8 @@ inventory player =
   where
     gold = str . ("Gold: " <>) . show . playerGold $ player
     weapons = str $ if L.null . playerWeapons $ player then "Weapons: none" else "Weapons: "
-    weaponList = padLeft (Pad 1) . vBox . fmap mkListItem . playerWeapons $ player
-    mkListItem = str . ("* " <>) . show
+    weaponList = padLeft (Pad 1) . vBox . toList . playerWeapons $ player
+    toList = fmap $ str . ("* " <>) . show
 
 -- | The game field (center right)
 gameField :: Brogalik -> Widget ()
