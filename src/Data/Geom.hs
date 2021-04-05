@@ -1,11 +1,12 @@
 module Data.Geom where
 
-import Data.Array (Ix)
+import           Data.Array (Ix)
 
 -- | Types
 type Pixel = Char
 
 type X = Int
+
 type Y = Int
 
 -- | position in the game field, starting in the top left corner
@@ -13,6 +14,7 @@ data Pos = Pos X Y
   deriving (Eq, Ord, Ix, Show)
 
 type Width = Int
+
 type Height = Int
 
 data Size = Size Width Height
@@ -21,11 +23,10 @@ data Size = Size Width Height
 data Rect = Rect Pos Size
   deriving Show
 
-data Direction
-  = West
-  | East
-  | North
-  | South
+data Direction = West
+               | East
+               | North
+               | South
   deriving (Eq, Ord, Ix, Show)
 
 data PosDelta = PosDelta X Y
@@ -48,15 +49,6 @@ instance Semigroup Pos where
 
 instance Monoid Pos where
   mempty = Pos 0 0
-
-instance Num Size where
-  (Size w1 h1) + (Size w2 h2) = Size (w1 + w2) (h1 + h2)
-  (Size w1 h1) - (Size w2 h2) = Size (w1 - w2) (h1 - h2)
-  (Size w1 h1) * (Size w2 h2) = Size (w1 * w2) (h1 * h2)
-  abs (Size w h) = Size (abs w) (abs h)
-  signum (Size w h) = Size (signum w) (signum h)
-  negate (Size w h) = Size (negate w) (negate h)
-  fromInteger x = Size (fromInteger x) (fromInteger x)
 
 -- | Helper functions
 directionChanges :: Direction -> PosDelta
