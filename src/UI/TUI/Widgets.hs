@@ -1,6 +1,7 @@
 module UI.TUI.Widgets (title, inventory, gameField, help, status) where
 
 import qualified Data.List as L
+
 import           Brick
 import           Brick.Widgets.Border
 import           Brick.Widgets.Border.Style
@@ -33,14 +34,11 @@ inventory player = withBorderStyle unicodeBold
   $ vBox [gold, weaponsLabel, weaponList]
   where
     gold = str . ("Gold: " <>) . show . playerGold $ player
-
     weaponsLabel = str
       $ if L.null . playerWeapons $ player
         then "Weapons: none"
         else "Weapons: "
-
     weaponList = padLeft (Pad 1) . vBox . toList . playerWeapons $ player
-
     toList = fmap $ str . ("* " <>) . show
 
 -- | The game field (center right)
