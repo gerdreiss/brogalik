@@ -30,13 +30,20 @@ mkRoom :: Pos -> Size -> Room
 mkRoom pos size = Room (Rect pos size) mempty
 
 addItemT :: Pos -> Item -> StateT Room ()
-addItemT pos item = StateT $ \room -> (room { roomItems = M.insert pos item (roomItems room) }, ())
+addItemT pos item = StateT
+  $ \room -> (room { roomItems = M.insert pos item (roomItems room) }, ())
 
 addItem :: Pos -> Item -> Room -> Room
 addItem pos item room = room { roomItems = M.insert pos item (roomItems room) }
 
 brogalikMoveT :: Direction -> StateT Brogalik ()
-brogalikMoveT direction = StateT $ \brogalik -> (brogalik { brogalikPlayer = playerMove direction (brogalikPlayer brogalik) }, ())
+brogalikMoveT direction = StateT $ \brogalik ->
+  ( brogalik
+    { brogalikPlayer = fst $ runStateT (playerMoveT direction)
+                                       (brogalikPlayer brogalik)
+    }
+  , ()
+  )
 
 brogalikMove :: Direction -> Brogalik -> Brogalik
 brogalikMove direction brogalik =
