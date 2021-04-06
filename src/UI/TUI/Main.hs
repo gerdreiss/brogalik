@@ -8,10 +8,10 @@ import           Brick
 import           Control.Brogalik
 import           Data.Brogalik
 import           Data.Geom
+import           Data.StateT
 import           Data.Text
 import           Graphics.Vty.Input.Events
 import           UI.TUI.State
-import Data.StateT (runStateT)
 
 type NewState = EventM () (Next AppState)
 
@@ -59,7 +59,7 @@ handleTuiEvent s _ = continue s
 
 movePlayer :: Data.Geom.Direction -> AppState -> NewState
 movePlayer d s = continue s { stateStatus = pack $ "Moving " <> show d <> "..."
-                            , stateBrogalik = fst $ runStateT (brogalikMoveT d) (stateBrogalik s)
+                            , stateBrogalik = brogalikMove d (stateBrogalik s)
                             }
 
 resizeBrogalik :: Width -> Height -> AppState -> NewState

@@ -8,7 +8,7 @@ import           Data.Array
 import           Data.Brogalik
 import           Data.Foldable
 import           Data.Geom
-import           Data.StateT
+
 
 -- | Make a display of given size filled with the given pixel character
 mkDisplay :: Size -> Pixel -> Display
@@ -19,12 +19,6 @@ mkDisplay size pixel = Display size pixels
   Size w h  = size
 
 -- | Fill an existing display with the given pixel character
-fillDisplayT :: Pixel -> StateT Display ()
-fillDisplayT pixel = do
-  size <- displaySize <$> getState
-  _fillRectT (rect size) pixel
-  where rect = Rect (Pos 0 0)
-
 fillDisplay :: Pixel -> Display -> Display
 fillDisplay pixel display = _fillRect rect pixel display
   where rect = Rect (Pos 0 0) (displaySize display)
@@ -40,19 +34,10 @@ renderDisplay (Display (Size width height) pixels) = unlines
   [ [ pixels ! Pos x y | x <- [0 .. width - 1] ] | y <- [0 .. height - 1] ]
 
 -- | Display the Brogalik
-displayBrogalikT :: Brogalik -> StateT Display ()
-displayBrogalikT brogalik = do
-  displayPlayerT brogalik
-  displayRoomsT brogalik
-
 displayBrogalik :: Brogalik -> Display -> Display
 displayBrogalik brogalik = displayPlayer brogalik . displayRooms brogalik
 
 -- | Display the player within the Brogalik
-displayPlayerT :: Brogalik -> StateT Display ()
-displayPlayerT brogalik =
-  StateT $ \display -> (displayPlayer brogalik display, ())
-
 displayPlayer :: Brogalik -> Display -> Display
 displayPlayer brogalik = displayPixel playerScreenPos '@'
  where
@@ -61,18 +46,11 @@ displayPlayer brogalik = displayPixel playerScreenPos '@'
   player               = brogalikPlayer brogalik
 
 -- | Display the rooms within the Brogalik
-displayRoomsT :: Brogalik -> StateT Display ()
-displayRoomsT brogalik =
-  StateT $ \display -> (displayRooms brogalik display, ())
-
 displayRooms :: Brogalik -> Display -> Display
 displayRooms brogalik display = foldl' (flip displayRoom) display roomList
   where roomList = elems (brogalikRooms brogalik)
 
 -- | Place the given room in the given display
-displayRoomT :: Room -> StateT Display ()
-displayRoomT room = StateT $ \display -> (displayRoom room display, ())
-
 displayRoom :: Room -> Display -> Display
 displayRoom room display = foldl' foldFunc display' items
  where
@@ -83,16 +61,10 @@ displayRoom room display = foldl' foldFunc display' items
   items                    = M.toList (roomItems room)
 
 -- | Place the given pixel character in the given display
-displayPixelT :: Pos -> Pixel -> StateT Display ()
-displayPixelT pos pixel = StateT $ \display -> (displayPixel pos pixel display, ())
-
 displayPixel :: Pos -> Pixel -> Display -> Display
 displayPixel (Pos x y) = _fillRect $ Rect (Pos x y) (Size 1 1)
 
 -- | Fill the given rectangle with the pixel character
-_fillRectT :: Rect -> Pixel -> StateT Display ()
-_fillRectT rect pixel = StateT $ \display -> (_fillRect rect pixel display, ())
-
 _fillRect :: Rect -> Pixel -> Display -> Display
 _fillRect rect pixel display = display
   { displayPixels = pixels // do
@@ -104,8 +76,8 @@ _fillRect rect pixel display = display
   Rect    (Pos  rectX rectY ) (Size rectW rectH) = rect
   Display (Size width height) pixels             = display
 
---
---
+-- |
+-- |
 -- | helper functions, currently unused
 _drawVLine :: Pos -> Height -> Pixel -> Display -> Display
 _drawVLine (Pos x y) height =

@@ -4,9 +4,7 @@ import qualified Data.Map                      as M
 
 import           Data.Array
 import           Data.Brogalik
-import           Data.Foldable
 import           Data.Geom
-import           Data.StateT
 
 generateBrogalik :: Size -> Brogalik
 generateBrogalik size = Brogalik
@@ -29,28 +27,12 @@ generateBrogalik size = Brogalik
 mkRoom :: Pos -> Size -> Room
 mkRoom pos size = Room (Rect pos size) mempty
 
-addItemT :: Pos -> Item -> StateT Room ()
-addItemT pos item = StateT
-  $ \room -> (room { roomItems = M.insert pos item (roomItems room) }, ())
-
 addItem :: Pos -> Item -> Room -> Room
 addItem pos item room = room { roomItems = M.insert pos item (roomItems room) }
-
-brogalikMoveT :: Direction -> StateT Brogalik ()
-brogalikMoveT direction = StateT $ \brogalik ->
-  ( brogalik
-    { brogalikPlayer = fst $ runStateT (playerMoveT direction)
-                                       (brogalikPlayer brogalik)
-    }
-  , ()
-  )
 
 brogalikMove :: Direction -> Brogalik -> Brogalik
 brogalikMove direction brogalik =
   brogalik { brogalikPlayer = playerMove direction (brogalikPlayer brogalik) }
-
-playerMoveT :: Direction -> StateT Player ()
-playerMoveT direction = StateT $ \player -> (playerMove direction player, ())
 
 playerMove :: Direction -> Player -> Player
 playerMove direction player = player

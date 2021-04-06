@@ -1,23 +1,24 @@
-{-# LANGUAGE TupleSections #-}
-
 module Data.StateT where
 
-newtype StateT s a = StateT { runStateT :: s -> (s, a) }
+newtype StateT s m a = StateT
+  { runStateT :: s -> m (s, a)
+  }
 
-instance Functor (StateT s) where
-  fmap f (StateT run) = StateT (fmap f . run)
+instance Functor m => Functor (StateT s m) where
+  fmap f (StateT run) = StateT $ fmap (fmap f) . run
 
-instance Applicative (StateT s) where
-  pure a = StateT (, a)
+instance Monad m => Applicative (StateT s m) where
+  pure a = StateT $ \s -> pure (s, a)
 
-  (StateT runF) <*> (StateT runX) = StateT $ \s ->
-    let (s' , f) = runF s
-        (s'', x) = runX s'
-    in  (s'', f x)
+  (StateT runF) <*> (StateT runX) = StateT $ \s -> do
+    (s' , f) <- runF s
+    (s'', x) <- runX s'
+    pure (s'', f x)
 
-instance Monad (StateT s) where
-  (StateT run) >>= f =
-    StateT $ \s -> let (s', a) = run s in runStateT (f a) s'
+instance Monad m => Monad (StateT s m) where
+  (StateT run) >>= f = StateT $ \s -> do
+    (s', a) <- run s
+    runStateT (f a) s'
 
-getState :: StateT s s
-getState = StateT $ \s -> (s, s)
+getState :: Monad m => StateT s m s
+getState = StateT $ \s -> return (s, s)
