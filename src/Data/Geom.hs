@@ -37,7 +37,9 @@ instance Ord Size where
   (Size wl hl) <= (Size wr hr) = wl <= wr && hl <= hr
 
 instance Semigroup Size where
-  (Size w1 h1) <> (Size w2 h2) = Size (w1 + w2) (h1 + h2)
+  (Size w1 h1) <> (Size w2 h2) = Size w2 newH
+   where
+    newH = round $ fromIntegral h2 + (fromIntegral (w1 * h1) / fromIntegral w2)
 
 instance Monoid Size where
   mempty = Size 0 0

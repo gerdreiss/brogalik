@@ -26,7 +26,7 @@ fillDisplay pixel display = _fillRect rect pixel display
 -- | Render the brogalik into a string
 renderBrogalik :: Brogalik -> Size -> String
 renderBrogalik brogalik size =
-  renderDisplay . displayBrogalik brogalik $ mkDisplay size ' '
+  renderDisplay . displayBrogalik brogalik $ mkDisplay size displayBg
 
 -- | Render the display into a string
 renderDisplay :: Display -> String

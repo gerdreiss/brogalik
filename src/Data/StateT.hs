@@ -1,3 +1,5 @@
+{-# LANGUAGE TupleSections #-}
+
 module Data.StateT where
 
 newtype StateT s m a = StateT
@@ -22,3 +24,6 @@ instance Monad m => Monad (StateT s m) where
 
 getState :: Monad m => StateT s m s
 getState = StateT $ \s -> return (s, s)
+
+liftM :: Monad m => m a -> StateT s m a
+liftM m = StateT $ \s -> (s, ) <$> m
