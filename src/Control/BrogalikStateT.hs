@@ -15,8 +15,8 @@ import           Data.StateT
 transformP2B :: Monad m => StateT Player m () -> StateT Brogalik m ()
 transformP2B s = StateT $ \br -> runState br >>= updateState br
  where
-  runState br = fst <$> runStateT s (brogalikPlayer br)
-  updateState br p = return . (, ()) $ br { brogalikPlayer = p }
+  runState br = snd <$> runStateT s (brogalikPlayer br)
+  updateState br p = return . ((), ) $ br { brogalikPlayer = p }
 
 
 renderBrogalikT :: Monad m => StateT Brogalik m String
@@ -36,16 +36,16 @@ renderBrogalikT = do
 
 addItemT :: Monad m => Pos -> Item -> StateT Room m ()
 addItemT pos item = StateT $ \room ->
-  return . (, ()) $ room { roomItems = M.insert pos item (roomItems room) }
+  return . ((), ) $ room { roomItems = M.insert pos item (roomItems room) }
 
 
 playerMoveT :: Monad m => Direction -> StateT Player m ()
 playerMoveT direction =
-  StateT $ \player -> return . (, ()) $ _movePlayer direction player
+  StateT $ \player -> return . ((), ) $ _movePlayer direction player
 
 
 brogalikMoveT :: Monad m => Direction -> StateT Brogalik m ()
-brogalikMoveT direction = StateT $ \brogalik -> return . (, ()) $ brogalik
+brogalikMoveT direction = StateT $ \brogalik -> return . ((), ) $ brogalik
   { brogalikPlayer = _movePlayer direction $ brogalikPlayer brogalik
   }
 
@@ -57,9 +57,7 @@ fillDisplayT pixel = do
 
 
 displayBrogalikT :: Monad m => Brogalik -> StateT Display m ()
-displayBrogalikT brogalik = do
-  displayPlayerT brogalik
-  displayRoomsT brogalik
+displayBrogalikT brogalik = displayPlayerT brogalik >> displayRoomsT brogalik
 
 
 displayPlayerT :: Monad m => Brogalik -> StateT Display m ()
@@ -99,7 +97,7 @@ _fillRectT :: Monad m => Rect -> Pixel -> StateT Display m ()
 _fillRectT rectangle pixel = StateT $ \display ->
   let Rect    (Pos  rectX rectY ) (Size rectW rectH) = rectangle
       Display (Size width height) pixels             = display
-  in  return . (, ()) $ display
+  in  return . ((), ) $ display
         { displayPixels = pixels // do
                             x <- [rectX .. (rectX + rectW - 1)]
                             y <- [rectY .. (rectY + rectH - 1)]
