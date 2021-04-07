@@ -8,7 +8,6 @@ import           Brick
 import           Control.Brogalik
 import           Data.Brogalik
 import           Data.Geom
-import           Data.StateT
 import           Data.Text
 import           Graphics.Vty.Input.Events
 import           UI.TUI.State

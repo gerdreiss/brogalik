@@ -4,7 +4,6 @@ module Control.BrogalikStateT where
 
 import qualified Data.Map                      as M
 
-import           Control.Display
 import           Data.Array
 import           Data.Brogalik
 import           Data.Foldable
@@ -19,71 +18,73 @@ transformP2B s = StateT $ \br -> runState br >>= updateState br
   updateState br p = return . ((), ) $ br { brogalikPlayer = p }
 
 
-renderBrogalikT :: Monad m => StateT Brogalik m String
-renderBrogalikT = do
+renderBrogalik :: Monad m => StateT Brogalik m String
+renderBrogalik = do
   brogalik <- getState
-  let size      = brogalikSize brogalik
-      Size w h  = size
-      cellRange = (Pos 0 0, Pos (w - 1) (h - 1))
-      pixels    = array cellRange $ (, displayBg) <$> range cellRange
-  return
-    . show
-    . renderDisplay
-    . fst
-    . runStateT (displayBrogalikT brogalik)
-    $ Display size pixels
+  let size@(Size w h) = brogalikSize brogalik
+      cellRange       = (Pos 0 0, Pos (w - 1) (h - 1))
+      pixels          = array cellRange $ (, displayBg) <$> range cellRange
+  renderDisplay (Display size pixels)
 
 
-addItemT :: Monad m => Pos -> Item -> StateT Room m ()
-addItemT pos item = StateT $ \room ->
+renderDisplay :: Monad m => Display -> StateT Brogalik m String
+renderDisplay (Display (Size width height) pixels) = StateT
+  $ \s -> return (render, s)
+ where
+  render = unlines
+    [ [ pixels ! Pos x y | x <- [0 .. width - 1] ] | y <- [0 .. height - 1] ]
+
+
+addItem :: Monad m => Pos -> Item -> StateT Room m ()
+addItem pos item = StateT $ \room ->
   return . ((), ) $ room { roomItems = M.insert pos item (roomItems room) }
 
 
-playerMoveT :: Monad m => Direction -> StateT Player m ()
-playerMoveT direction =
+playerMove :: Monad m => Direction -> StateT Player m ()
+playerMove direction =
   StateT $ \player -> return . ((), ) $ _movePlayer direction player
 
 
-brogalikMoveT :: Monad m => Direction -> StateT Brogalik m ()
-brogalikMoveT direction = StateT $ \brogalik -> return . ((), ) $ brogalik
+brogalikMove :: Monad m => Direction -> StateT Brogalik m ()
+brogalikMove direction = StateT $ \brogalik -> return . ((), ) $ brogalik
   { brogalikPlayer = _movePlayer direction $ brogalikPlayer brogalik
   }
 
 
-fillDisplayT :: Monad m => Pixel -> StateT Display m ()
-fillDisplayT pixel = do
+fillDisplay :: Monad m => Pixel -> StateT Display m ()
+fillDisplay pixel = do
   size <- displaySize <$> getState
-  _fillRectT (Rect (Pos 0 0) size) pixel
+  _fillRect (Rect (Pos 0 0) size) pixel
 
 
-displayBrogalikT :: Monad m => Brogalik -> StateT Display m ()
-displayBrogalikT brogalik = displayPlayerT brogalik >> displayRoomsT brogalik
+displayBrogalik :: Monad m => Brogalik -> StateT Display m ()
+displayBrogalik brogalik = displayPlayer brogalik >> displayRooms brogalik
 
 
-displayPlayerT :: Monad m => Brogalik -> StateT Display m ()
-displayPlayerT brogalik = displayPixelT playerScreenPos '@'
+displayPlayer :: Monad m => Brogalik -> StateT Display m ()
+displayPlayer brogalik = displayPixel playerScreenPos '@'
  where
   playerScreenPos      = playerRoomPos <> playerPos player
   Rect playerRoomPos _ = roomRect (brogalikRooms brogalik ! playerRoom player)
   player               = brogalikPlayer brogalik
 
 
-displayRoomT :: Monad m => Room -> StateT Display m ()
-displayRoomT room =
-  _fillRectT (roomRect room) roomFloor
+displayRoom :: Monad m => Room -> StateT Display m ()
+displayRoom room =
+  _fillRect (roomRect room) roomFloor
     >> let Rect roomPos _ = roomRect room
        in  for_ (M.toList . roomItems $ room) (uncurry (displayItem roomPos))
  where
   displayItem (Pos roomX roomY) (Pos itemX itemY) item =
-    displayPixelT (Pos (roomX + itemX) (roomY + itemY)) (itemChar item)
+    displayPixel (Pos (roomX + itemX) (roomY + itemY)) (itemChar item)
 
 
-displayRoomsT :: Monad m => Brogalik -> StateT Display m ()
-displayRoomsT brogalik = for_ (elems (brogalikRooms brogalik)) displayRoomT
+displayRooms :: Monad m => Brogalik -> StateT Display m ()
+displayRooms brogalik = for_ (elems (brogalikRooms brogalik)) displayRoom
 
 
-displayPixelT :: Monad m => Pos -> Pixel -> StateT Display m ()
-displayPixelT (Pos x y) = _fillRectT (Rect (Pos x y) (Size 1 1))
+displayPixel :: Monad m => Pos -> Pixel -> StateT Display m ()
+displayPixel (Pos x y) = _fillRect (Rect (Pos x y) (Size 1 1))
 
 
 
@@ -93,8 +94,8 @@ _movePlayer direction player = player
   }
   where newPos (Pos x y) (PosDelta dx dy) = Pos (x + dx) (y + dy)
 
-_fillRectT :: Monad m => Rect -> Pixel -> StateT Display m ()
-_fillRectT rectangle pixel = StateT $ \display ->
+_fillRect :: Monad m => Rect -> Pixel -> StateT Display m ()
+_fillRect rectangle pixel = StateT $ \display ->
   let Rect    (Pos  rectX rectY ) (Size rectW rectH) = rectangle
       Display (Size width height) pixels             = display
   in  return . ((), ) $ display

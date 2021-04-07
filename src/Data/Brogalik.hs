@@ -1,5 +1,3 @@
-{-# LANGUAGE TupleSections #-}
-
 module Data.Brogalik where
 
 import qualified Data.Map                      as M
@@ -56,21 +54,20 @@ data Display = Display
   deriving Show
 
 
-instance Semigroup Display where
-  l <> r = Display newSize pixels
-   where
-    newSize   = displaySize l <> displaySize r
-    pixels    = array cellRange $ (, pixel) <$> range cellRange
-    cellRange = (Pos 0 0, Pos (w - 1) (h - 1))
-    pixel     = displayPixels l ! Pos 0 0
-    Size w h  = newSize
+--instance Semigroup Display where
+--  l <> r = Display newSize pixels
+--   where
+--    newSize   = displaySize l <> displaySize r
+--    pixels    = array cellRange $ (, pixel) <$> range cellRange
+--    cellRange = (Pos 0 0, Pos (w - 1) (h - 1))
+--    pixel     = displayPixels l ! Pos 0 0
+--    Size w h  = newSize
 
-
-instance Monoid Display where
-  mempty = Display (Size 0 0) pixels
-   where
-    pixels    = array cellRange [(Pos 0 0, displayBg)]
-    cellRange = (Pos 0 0, Pos 0 0)
+--instance Monoid Display where
+--  mempty = Display (Size 0 0) pixels
+--   where
+--    pixels    = array cellRange [(Pos 0 0, displayBg)]
+--    cellRange = (Pos 0 0, Pos 0 0)
 
 
 
