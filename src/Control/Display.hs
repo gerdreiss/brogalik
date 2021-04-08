@@ -51,13 +51,25 @@ displayRooms brogalik display = foldl' (flip displayRoom) display roomList
 
 -- | Place the given room in the given display
 displayRoom :: Room -> Display -> Display
-displayRoom room display = foldl' foldFunc display' items
+displayRoom room display = displayItems room display''
  where
-  foldFunc dspl (Pos itemX itemY, item) =
-    displayPixel (Pos (roomX + itemX) (roomY + itemY)) (itemPixel item) dspl
+  display'  = _fillRect (roomRect room) roomFloor display
+  display'' = _frameRect (roomRect room) '─' '│' display'
+
+-- | Place the items of the given room
+displayItems :: Room -> Display -> Display
+displayItems room display = foldl' (flip displayItemInRoom) display items
+ where
+  displayItemInRoom (pos, item) = displayItem item pos room
+  items = M.toList $ roomItems room
+
+-- | Place the given item at the given position in the room
+displayItem :: Item -> Pos -> Room -> Display -> Display
+displayItem item (Pos itemX itemY) room = displayPixel relItemPos
+                                                       (itemPixel item)
+ where
+  relItemPos               = Pos (roomX + itemX) (roomY + itemY)
   Rect (Pos roomX roomY) _ = roomRect room
-  display'                 = _fillRect (roomRect room) roomFloor display
-  items                    = M.toList (roomItems room)
 
 -- | Place the given pixel character in the given display
 displayPixel :: Pos -> Pixel -> Display -> Display
@@ -75,6 +87,11 @@ _fillRect rect pixel display = display
   Rect    (Pos  rectX rectY ) (Size rectW rectH) = rect
   Display (Size width height) pixels             = display
 
+-- | The corner positions of a rectangle
+_corners :: Rect -> [Pos]
+_corners (Rect (Pos x y) (Size w h)) =
+  [Pos x y, Pos (x + w - 1) y, Pos x (y + h - 1), Pos (x + w - 1) (y + h - 1)]
+
 -- |
 -- |
 -- | helper functions, currently unused
@@ -86,13 +103,13 @@ _drawHLine :: Pos -> Width -> Pixel -> Display -> Display
 _drawHLine (Pos x y) width =
   _fillRect $ Rect (Pos x y) (Size (width - x + 1) 1)
 
-_drawRect :: Rect -> Pixel -> Display -> Display
-_drawRect rect pixel =
-  _drawHLine (Pos x y) width pixel
-    . _drawHLine (Pos x height) width pixel
-    . _drawVLine (Pos x y)     height pixel
-    . _drawVLine (Pos width y) height pixel
+_frameRect :: Rect -> Pixel -> Pixel -> Display -> Display
+_frameRect rect horizPixel vertPixel =
+  _drawHLine (Pos (x - 1) (y - 1)) horizLength horizPixel
+    . _drawHLine (Pos (x - 1) vertLength) horizLength horizPixel
+    . _drawVLine (Pos (x - 1) (y - 1))     vertLength vertPixel
+    . _drawVLine (Pos horizLength (y - 1)) vertLength vertPixel
  where
   (Rect (Pos x y) (Size w h)) = rect
-  width                       = x + w - 1
-  height                      = y + h - 1
+  horizLength                 = x + w
+  vertLength                  = y + h

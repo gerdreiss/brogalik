@@ -35,7 +35,7 @@ library
       Data.StateT
       UI.TUI.Main
       UI.TUI.State
-      UI.TUI.Widgets
+      UI.TUI.FrameWidgets
   other-modules:
       Paths_brogalik
   hs-source-dirs:

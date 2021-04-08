@@ -21,8 +21,8 @@ generateBrogalik size = Brogalik
  where
   indexRange = (Index 0, Index (length rooms - 1))
   rooms =
-    [ addItem (Pos 4 3) (GoldItem 69) $ mkRoom (Pos 0 0) (Size 10 5)
-    , addItem (Pos 2 2) (WeaponItem Axe) $ mkRoom (Pos 0 20) (Size 12 7)
+    [ addItem (Pos 4 3) (GoldItem 69) $ mkRoom (Pos 1 1) (Size 10 5)
+    , addItem (Pos 2 2) (WeaponItem Axe) $ mkRoom (Pos 1 20) (Size 12 7)
     , addItem (Pos 2 2) (WeaponItem Sword) $ mkRoom (Pos 20 20) (Size 10 5)
     ]
 
@@ -38,6 +38,9 @@ brogalikMove direction brogalik =
 
 playerMove :: Direction -> Player -> Player
 playerMove direction player = player
-  { playerPos = newPos (playerPos player) (directionChanges direction)
+  { playerPos  = newPos (playerPos player) (directionChanges direction)
+  , playerGold = playerGold player + goldFound
   }
-  where newPos (Pos x y) (PosDelta dx dy) = Pos (x + dx) (y + dy)
+ where
+  newPos (Pos x y) (PosDelta dx dy) = Pos (x + dx) (y + dy)
+  goldFound = 0

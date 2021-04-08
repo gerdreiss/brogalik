@@ -1,4 +1,4 @@
-module UI.TUI.Widgets
+module UI.TUI.FrameWidgets
   ( title
   , inventory
   , gameField
@@ -25,6 +25,7 @@ import           Data.Geom                      ( Height
 import           Data.Text                      ( Text
                                                 , unpack
                                                 )
+import           UI.TUI.GameWidgets             ( game )
 import           UI.TUI.State                   ( AppState(..) )
 
 -- | The title widget (top)
@@ -72,7 +73,7 @@ gameField brogalik =
             else renderWarning terminalSize gameFieldSize
  where
   minRequired (Size w h) = w >= _minGameFieldWidth && h >= _minGameFieldHeight
-  renderGame size = str $ renderBrogalik brogalik size
+  renderGame size = game brogalik size
   renderWarning terminalSize gameFieldSize =
     str
       . L.concat
