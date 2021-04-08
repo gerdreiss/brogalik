@@ -1,6 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 
-module Data.StateT where
+module Experimental.StateT where
 
 import           Data.Bifunctor                 ( first )
 

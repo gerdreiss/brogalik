@@ -1,4 +1,6 @@
-module UI.TUI.GameWidgets where
+module UI.TUI.Widgets.Game
+  ( game
+  ) where
 
 
 import           Brick                   hiding ( Size )

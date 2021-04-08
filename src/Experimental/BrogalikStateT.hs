@@ -1,6 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 
-module Control.BrogalikStateT where
+module Experimental.BrogalikStateT where
 
 import qualified Data.Map                      as M
 
@@ -8,7 +8,7 @@ import           Data.Array
 import           Data.Brogalik
 import           Data.Foldable
 import           Data.Geom
-import           Data.StateT
+import           Experimental.StateT
 
 transformP2B :: Monad m => StateT Player m () -> StateT Brogalik m ()
 transformP2B s = StateT $ \br -> runState br >>= updateState br

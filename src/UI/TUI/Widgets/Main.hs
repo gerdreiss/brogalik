@@ -1,4 +1,4 @@
-module UI.TUI.FrameWidgets
+module UI.TUI.Widgets.Main
   ( title
   , inventory
   , gameField
@@ -25,8 +25,8 @@ import           Data.Geom                      ( Height
 import           Data.Text                      ( Text
                                                 , unpack
                                                 )
-import           UI.TUI.GameWidgets             ( game )
 import           UI.TUI.State                   ( AppState(..) )
+import           UI.TUI.Widgets.Game            ( game )
 
 -- | The title widget (top)
 title :: Text -> Widget ()

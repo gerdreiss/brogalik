@@ -2,7 +2,7 @@ module UI.TUI.Main
   ( tui
   ) where
 
-import qualified UI.TUI.FrameWidgets           as W
+import qualified UI.TUI.Widgets.Main           as W
 
 import           Brick
 import           Control.Brogalik
