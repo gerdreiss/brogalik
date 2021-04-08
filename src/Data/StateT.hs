@@ -26,6 +26,7 @@ instance Monad m => Monad (StateT s m) where
     (a, s') <- run s
     runStateT (f a) s'
 
+
 getState :: Monad m => StateT s m s
 getState = StateT $ \s -> return (s, s)
 

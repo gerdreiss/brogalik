@@ -6,9 +6,8 @@ import qualified Data.Map                      as M
 
 import           Data.Array
 import           Data.Brogalik
-import           Data.Foldable
+import           Data.Foldable                  ( Foldable(foldl') )
 import           Data.Geom
-
 
 -- | Make a display of given size filled with the given pixel character
 mkDisplay :: Size -> Pixel -> Display
@@ -55,7 +54,7 @@ displayRoom :: Room -> Display -> Display
 displayRoom room display = foldl' foldFunc display' items
  where
   foldFunc dspl (Pos itemX itemY, item) =
-    displayPixel (Pos (roomX + itemX) (roomY + itemY)) (itemChar item) dspl
+    displayPixel (Pos (roomX + itemX) (roomY + itemY)) (itemPixel item) dspl
   Rect (Pos roomX roomY) _ = roomRect room
   display'                 = _fillRect (roomRect room) roomFloor display
   items                    = M.toList (roomItems room)

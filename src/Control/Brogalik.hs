@@ -2,7 +2,9 @@ module Control.Brogalik where
 
 import qualified Data.Map                      as M
 
-import           Data.Array
+import           Data.Array                     ( Ix(range)
+                                                , array
+                                                )
 import           Data.Brogalik
 import           Data.Geom
 

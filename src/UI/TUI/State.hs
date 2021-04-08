@@ -1,9 +1,9 @@
 module UI.TUI.State where
 
-import           Control.Brogalik
-import           Data.Brogalik
-import           Data.Geom
-import           Data.Text
+import           Control.Brogalik               ( generateBrogalik )
+import           Data.Brogalik                  ( Brogalik )
+import           Data.Geom                      ( Size )
+import           Data.Text                      ( Text )
 
 data AppState = AppState
   { stateTitle    :: Text
