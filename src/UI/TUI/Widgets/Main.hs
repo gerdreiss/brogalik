@@ -14,7 +14,6 @@ import           Brick.Widgets.Border.Style     ( unicodeBold )
 import           Brick.Widgets.Center           ( hCenter
                                                 , vCenter
                                                 )
-import           Control.Display                ( renderBrogalik )
 import           Data.Brogalik                  ( Brogalik(..)
                                                 , Player(..)
                                                 )

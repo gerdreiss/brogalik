@@ -44,13 +44,17 @@ instance Show Size where
 instance Semigroup Size where
   (Size w1 h1) <> (Size w2 h2) = Size newW h1
    where
-    newW = round $ fromIntegral w1 + (fromIntegral (w2 * h2) / fromIntegral h1)
+    newW = round $ _w1 + _w2 * _h2 / _h1
+    _w1  = fromIntegral w1 :: Double
+    _h1  = fromIntegral h1 :: Double
+    _w2  = fromIntegral w2 :: Double
+    _h2  = fromIntegral h2 :: Double
 
 instance Monoid Size where
   mempty = Size 0 0
 
 instance Semigroup Pos where
-  (Pos col1 row1) <> (Pos col2 row2) = Pos (col1 + col2) (row1 + row2)
+  (Pos xl rl) <> (Pos xr rr) = Pos (xl + xr) (rl + rr)
 
 instance Monoid Pos where
   mempty = Pos 0 0

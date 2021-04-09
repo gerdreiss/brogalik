@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5e9dce19ac60f4e307ef9a0030aa7258608b3c380fc550b257c1b244296fadc9
+-- hash: 991bc9b7f377a04d89b3c162893f22a80fe8b1920afd55de9079b4cd8688f904
 
 name:           brogalik
 version:        0.1.0.0
@@ -28,7 +28,6 @@ source-repository head
 library
   exposed-modules:
       Control.Brogalik
-      Control.Display
       Data.Brogalik
       Data.Geom
       Experimental.BrogalikStateT
