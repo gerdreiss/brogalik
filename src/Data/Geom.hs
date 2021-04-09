@@ -4,6 +4,9 @@ import           Data.Array                     ( Ix )
 
 -- | Types
 type Pixel = Char
+type Length = Int
+
+data Orientation = Vertical | Horizontal
 
 type X = Int
 type Y = Int

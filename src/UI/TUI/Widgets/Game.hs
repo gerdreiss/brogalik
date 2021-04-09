@@ -6,7 +6,10 @@ module UI.TUI.Widgets.Game
 
 import qualified Data.Map                      as M
 
-import           Brick                   hiding ( Size )
+import           Brick                   hiding ( Horizontal
+                                                , Size
+                                                , Vertical
+                                                )
 import           Brick.Widgets.Border.Style
 import           Data.Array
 import           Data.Brogalik
@@ -66,32 +69,26 @@ displayItem (Room (Rect roomPos _) _) itemPos item =
 
 -- | Draw borders around the given rectangle
 frameRect :: Rect -> BorderStyle -> Display -> Display
-frameRect rect borderStyle =
-  drawPixel (Pos (x - 1) (y - 1)) (bsCornerTL borderStyle)
-    . drawPixel (Pos horizLength (y - 1))    (bsCornerTR borderStyle)
-    . drawPixel (Pos (x - 1) vertLength)     (bsCornerBL borderStyle)
-    . drawPixel (Pos horizLength vertLength) (bsCornerBR borderStyle)
-    . drawHLine (Pos x (y - 1))    (horizLength - 1) (bsHorizontal borderStyle)
-    . drawHLine (Pos x vertLength) (horizLength - 1) (bsHorizontal borderStyle)
-    . drawVLine (Pos horizLength y) (vertLength - 1) (bsVertical borderStyle)
-    . drawVLine (Pos (x - 1) y)     (vertLength - 1) (bsVertical borderStyle)
- where
-  (Rect (Pos x y) (Size w h)) = rect
-  horizLength                 = x + w
-  vertLength                  = y + h
+frameRect (Rect (Pos x y) (Size w h)) style =
+  drawPixel (Pos (x - 1) (y - 1)) (bsCornerTL style)
+    . drawPixel (Pos (x + w) (y - 1)) (bsCornerTR style)
+    . drawPixel (Pos (x - 1) (y + h)) (bsCornerBL style)
+    . drawPixel (Pos (x + w) (y + h)) (bsCornerBR style)
+    . drawLine (Pos x (y - 1)) (x + w - 1) Horizontal (bsHorizontal style)
+    . drawLine (Pos x (y + h)) (x + w - 1) Horizontal (bsHorizontal style)
+    . drawLine (Pos (x + w) y) (y + h - 1) Vertical   (bsVertical style)
+    . drawLine (Pos (x - 1) y) (y + h - 1) Vertical   (bsVertical style)
 
 -- | draw a pixel
 drawPixel :: Pos -> Pixel -> Display -> Display
 drawPixel (Pos x y) = fillRect $ Rect (Pos x y) (Size 1 1)
 
--- | draw a vertical line
-drawVLine :: Pos -> Height -> Pixel -> Display -> Display
-drawVLine (Pos x y) height =
-  fillRect $ Rect (Pos x y) (Size 1 (height - y + 1))
-
--- | draw a horizontal line
-drawHLine :: Pos -> Width -> Pixel -> Display -> Display
-drawHLine (Pos x y) width = fillRect $ Rect (Pos x y) (Size (width - x + 1) 1)
+-- | draw a line
+drawLine :: Pos -> Length -> Orientation -> Pixel -> Display -> Display
+drawLine (Pos x y) length Horizontal =
+  fillRect $ Rect (Pos x y) (Size (length - x + 1) 1)
+drawLine (Pos x y) length Vertical =
+  fillRect $ Rect (Pos x y) (Size 1 (length - y + 1))
 
 -- | Fill the given rectangle with the pixel character
 fillRect :: Rect -> Pixel -> Display -> Display
