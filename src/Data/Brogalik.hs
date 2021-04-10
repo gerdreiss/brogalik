@@ -61,6 +61,11 @@ itemPixel (GoldItem   _    ) = '$'
 itemPixel (WeaponItem Axe  ) = 'T'
 itemPixel (WeaponItem Sword) = '!'
 
+getRoomRect :: Room -> Rect
+getRoomRect (Room rect _) = rect
+
+getRoomItems :: Room -> M.Map Pos Item
+getRoomItems (Room _ items) = items
 
 --instance Semigroup Display where
 --  l <> r = Display newSize pixels

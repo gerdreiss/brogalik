@@ -1,11 +1,11 @@
 module Control.Brogalik
   ( generateBrogalik
-  , brogalikMove
   ) where
 
 import qualified Data.Map                      as M
 
-import           Data.Array                     ( Ix(range)
+import           Data.Array                     ( (!)
+                                                , Ix(range)
                                                 , array
                                                 )
 import           Data.Brogalik
@@ -35,17 +35,3 @@ mkRoom pos size = Room (Rect pos size) mempty
 
 addItem :: Pos -> Item -> Room -> Room
 addItem pos item room = room { roomItems = M.insert pos item (roomItems room) }
-
-
-brogalikMove :: Direction -> Brogalik -> Brogalik
-brogalikMove direction brogalik =
-  brogalik { brogalikPlayer = playerMove direction (brogalikPlayer brogalik) }
-
-playerMove :: Direction -> Player -> Player
-playerMove direction player = player
-  { playerPos  = newPos (playerPos player) (directionChanges direction)
-  , playerGold = playerGold player + goldFound
-  }
- where
-  newPos (Pos x y) (PosDelta dx dy) = Pos (x + dx) (y + dy)
-  goldFound = 0

@@ -16,7 +16,6 @@ import           Data.Brogalik
 import           Data.Foldable
 import           Data.Geom
 
-
 -- | The game field (center right)
 game :: Brogalik -> Size -> Widget ()
 game brogalik size = str $ renderBrogalik brogalik size
@@ -57,10 +56,10 @@ displayRoom room =
 
 -- | Place the items of the given room
 displayItems :: Room -> Display -> Display
-displayItems room display = foldl' doDisplayItem display items
+displayItems room display = foldl' doDisplay display items
  where
-  doDisplayItem = flip . uncurry . displayItem $ room
-  items         = M.toList $ roomItems room
+  doDisplay = flip . uncurry . displayItem $ room
+  items     = M.toList $ roomItems room
 
 -- | Place the given item at the given position in the room
 displayItem :: Room -> Pos -> Item -> Display -> Display
@@ -69,15 +68,15 @@ displayItem (Room (Rect roomPos _) _) itemPos item =
 
 -- | Draw borders around the given rectangle
 frameRect :: Rect -> BorderStyle -> Display -> Display
-frameRect (Rect (Pos x y) (Size w h)) style =
-  drawPixel (Pos (x - 1) (y - 1)) (bsCornerTL style)
-    . drawPixel (Pos (x + w) (y - 1)) (bsCornerTR style)
-    . drawPixel (Pos (x - 1) (y + h)) (bsCornerBL style)
-    . drawPixel (Pos (x + w) (y + h)) (bsCornerBR style)
-    . drawLine (Pos x (y - 1)) (x + w - 1) Horizontal (bsHorizontal style)
-    . drawLine (Pos x (y + h)) (x + w - 1) Horizontal (bsHorizontal style)
-    . drawLine (Pos (x + w) y) (y + h - 1) Vertical   (bsVertical style)
-    . drawLine (Pos (x - 1) y) (y + h - 1) Vertical   (bsVertical style)
+frameRect (Rect (Pos x y) (Size w h)) borderStyle =
+  drawPixel (Pos (x - 1) (y - 1)) (bsCornerTL borderStyle)
+    . drawPixel (Pos (x + w) (y - 1)) (bsCornerTR borderStyle)
+    . drawPixel (Pos (x - 1) (y + h)) (bsCornerBL borderStyle)
+    . drawPixel (Pos (x + w) (y + h)) (bsCornerBR borderStyle)
+    . drawLine (Pos x (y - 1)) (x + w - 1) Horizontal (bsHorizontal borderStyle)
+    . drawLine (Pos x (y + h)) (x + w - 1) Horizontal (bsHorizontal borderStyle)
+    . drawLine (Pos (x + w) y) (y + h - 1) Vertical   (bsVertical borderStyle)
+    . drawLine (Pos (x - 1) y) (y + h - 1) Vertical   (bsVertical borderStyle)
 
 -- | draw a pixel
 drawPixel :: Pos -> Pixel -> Display -> Display

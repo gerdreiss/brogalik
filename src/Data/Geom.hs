@@ -69,3 +69,5 @@ directionChanges East  = PosDelta 1 0
 directionChanges North = PosDelta 0 (-1)
 directionChanges South = PosDelta 0 1
 
+(|-->) :: Pos -> PosDelta -> Pos
+(|-->) (Pos x y) (PosDelta dx dy) = Pos (x + dx) (y + dy)

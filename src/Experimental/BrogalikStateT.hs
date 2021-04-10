@@ -10,11 +10,6 @@ import           Data.Foldable
 import           Data.Geom
 import           Experimental.StateT
 
-transformP2B :: Monad m => StateT Player m () -> StateT Brogalik m ()
-transformP2B s = StateT $ \br -> runState br >>= updateState br
- where
-  runState br = snd <$> runStateT s (brogalikPlayer br)
-  updateState br p = return . ((), ) $ br { brogalikPlayer = p }
 
 renderBrogalik :: Monad m => StateT Brogalik m String
 renderBrogalik = do
@@ -43,11 +38,6 @@ brogalikMove :: Monad m => Direction -> StateT Brogalik m ()
 brogalikMove direction = StateT $ \brogalik -> return . ((), ) $ brogalik
   { brogalikPlayer = _movePlayer direction $ brogalikPlayer brogalik
   }
-
-fillDisplay :: Monad m => Pixel -> StateT Display m ()
-fillDisplay pixel = do
-  size <- displaySize <$> getState
-  _fillRect (Rect (Pos 0 0) size) pixel
 
 displayBrogalik :: Monad m => Brogalik -> StateT Display m ()
 displayBrogalik brogalik = displayPlayer brogalik >> displayRooms brogalik
@@ -90,3 +80,10 @@ _fillRect rectangle pixel = StateT $ \display ->
                             y <- [rectY .. (rectY + rectH - 1)]
                             return (Pos (x `mod` width) (y `mod` height), pixel)
         }
+
+
+transformP2B :: Monad m => StateT Player m () -> StateT Brogalik m ()
+transformP2B s = StateT $ \br -> runState br >>= updateState br
+ where
+  runState br = snd <$> runStateT s (brogalikPlayer br)
+  updateState br p = return . ((), ) $ br { brogalikPlayer = p }

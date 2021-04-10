@@ -4,8 +4,10 @@ module UI.TUI.Main
 
 import qualified UI.TUI.Widgets.Main           as W
 
-import           Brick
+import           Brick                   hiding ( Direction )
+import           Brick.Util
 import           Control.Brogalik
+import           Data.Array
 import           Data.Brogalik
 import           Data.Geom
 import           Data.Text
@@ -44,22 +46,17 @@ drawTui state =
 -- | handle TUI events
 handleTuiEvent :: AppState -> BrickEvent n e -> NewState
 handleTuiEvent s (VtyEvent (EvResize w h)) = resizeBrogalik w h s
-handleTuiEvent s (VtyEvent (EvKey KLeft _)) = movePlayer West s
-handleTuiEvent s (VtyEvent (EvKey KRight _)) = movePlayer East s
-handleTuiEvent s (VtyEvent (EvKey KUp _)) = movePlayer North s
-handleTuiEvent s (VtyEvent (EvKey KDown _)) = movePlayer South s
+handleTuiEvent s (VtyEvent (EvKey (KChar 'n') _)) = newGame s
 handleTuiEvent s (VtyEvent (EvKey (KChar 'a') _)) = movePlayer West s
 handleTuiEvent s (VtyEvent (EvKey (KChar 'd') _)) = movePlayer East s
 handleTuiEvent s (VtyEvent (EvKey (KChar 'w') _)) = movePlayer North s
 handleTuiEvent s (VtyEvent (EvKey (KChar 's') _)) = movePlayer South s
-handleTuiEvent s (VtyEvent (EvKey (KChar 'n') _)) = newGame s
+handleTuiEvent s (VtyEvent (EvKey KLeft _)) = movePlayer West s
+handleTuiEvent s (VtyEvent (EvKey KRight _)) = movePlayer East s
+handleTuiEvent s (VtyEvent (EvKey KUp _)) = movePlayer North s
+handleTuiEvent s (VtyEvent (EvKey KDown _)) = movePlayer South s
 handleTuiEvent s (VtyEvent (EvKey (KChar 'q') _)) = halt s
 handleTuiEvent s _ = continue s
-
-movePlayer :: Data.Geom.Direction -> AppState -> NewState
-movePlayer d s = continue s { stateStatus = pack $ "Moving " <> show d <> "..."
-                            , stateBrogalik = brogalikMove d (stateBrogalik s)
-                            }
 
 resizeBrogalik :: Width -> Height -> AppState -> NewState
 resizeBrogalik w h s = continue s
@@ -70,3 +67,26 @@ resizeBrogalik w h s = continue s
 
 newGame :: AppState -> NewState
 newGame = continue . initialState . brogalikSize . stateBrogalik
+
+movePlayer :: Direction -> AppState -> NewState
+movePlayer d s = continue s { stateStatus = pack $ "Moving " <> show d <> "..."
+                            , stateBrogalik = brogalikMove (stateBrogalik s) d
+                            }
+
+brogalikMove :: Brogalik -> Direction -> Brogalik
+brogalikMove brogalik direction = brogalik
+  { brogalikPlayer = player { playerPos  = newPos
+                            , playerGold = playerGold player + goldFound
+                            }
+  }
+ where
+  player    = brogalikPlayer brogalik
+  rect      = getRoomRect $ brogalikRooms brogalik ! playerRoom player
+  newPos    = clampPos rect $ playerPos player |--> directionChanges direction
+  goldFound = 0
+
+clampPos :: Rect -> Pos -> Pos
+clampPos (Rect (Pos rectX rectY) (Size w h)) (Pos x y) = Pos newX newY
+ where
+  newX = clamp (rectX - 1) (rectX + w - 2) x
+  newY = clamp (rectY - 1) (rectY + h - 2) y
