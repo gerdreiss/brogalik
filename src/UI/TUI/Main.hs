@@ -5,13 +5,12 @@ module UI.TUI.Main
 import qualified UI.TUI.Widgets.Main           as W
 
 import           Brick                   hiding ( Direction )
-import           Brick.Util
-import           Control.Brogalik
 import           Data.Array
 import           Data.Brogalik
 import           Data.Geom
 import           Data.Text
 import           Graphics.Vty.Input.Events
+import           Lens.Micro
 import           UI.TUI.State
 
 type NewState = EventM () (Next AppState)
@@ -36,8 +35,8 @@ drawTui state =
   [ vBox
       [ W.title (stateTitle state)
       , hBox
-        [ W.inventory . brogalikPlayer . stateBrogalik $ state
-        , W.gameField . stateBrogalik $ state
+        [ W.inventory $ state & stateBrogalik & brogalikPlayer
+        , W.gameField $ stateBrogalik state
         ]
       , hBox [W.help, W.status state]
       ]
@@ -70,18 +69,18 @@ newGame = continue . initialState . brogalikSize . stateBrogalik
 
 movePlayer :: Direction -> AppState -> NewState
 movePlayer d s = continue s { stateStatus = pack $ "Moving " <> show d <> "..."
-                            , stateBrogalik = brogalikMove (stateBrogalik s) d
+                            , stateBrogalik = brogalikMove d (stateBrogalik s)
                             }
 
-brogalikMove :: Brogalik -> Direction -> Brogalik
-brogalikMove brogalik direction = brogalik
+brogalikMove :: Direction -> Brogalik -> Brogalik
+brogalikMove direction brogalik = brogalik
   { brogalikPlayer = player { playerPos  = newPos
                             , playerGold = playerGold player + goldFound
                             }
   }
  where
   player    = brogalikPlayer brogalik
-  rect      = getRoomRect $ brogalikRooms brogalik ! playerRoom player
+  rect      = brogalikRooms brogalik ! playerRoom player & roomRect
   newPos    = clampPos rect $ playerPos player |--> directionChanges direction
   goldFound = 0
 

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 991bc9b7f377a04d89b3c162893f22a80fe8b1920afd55de9079b4cd8688f904
+-- hash: c475a8a9f490c94e30b7802cd411f17a7c43d959e0e7a684554a791a6d747a16
 
 name:           brogalik
 version:        0.1.0.0
@@ -46,6 +46,7 @@ library
     , base >=4.7 && <5
     , brick
     , containers
+    , microlens
     , terminal-size
     , text
     , vty
@@ -65,6 +66,7 @@ executable brogalik-exe
     , brick
     , brogalik
     , containers
+    , microlens
     , terminal-size
     , text
     , vty
@@ -84,6 +86,7 @@ test-suite brogalik-test
     , brick
     , brogalik
     , containers
+    , microlens
     , terminal-size
     , text
     , vty

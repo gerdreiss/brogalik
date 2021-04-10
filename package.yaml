@@ -25,6 +25,7 @@ dependencies:
 - vty
 - array
 - containers
+- microlens
 - text
 - terminal-size
 
