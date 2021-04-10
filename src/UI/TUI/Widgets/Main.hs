@@ -14,9 +14,7 @@ import           Brick.Widgets.Border.Style     ( unicodeBold )
 import           Brick.Widgets.Center           ( hCenter
                                                 , vCenter
                                                 )
-import           Data.Brogalik                  ( Brogalik(..)
-                                                , Player(..)
-                                                )
+import           Data.Brogalik
 import           Data.Geom                      ( Height
                                                 , Size(..)
                                                 , Width
@@ -24,7 +22,7 @@ import           Data.Geom                      ( Height
 import           Data.Text                      ( Text
                                                 , unpack
                                                 )
-import           UI.TUI.State                   ( AppState(..) )
+import           Lens.Micro.GHC                 ( (^.) )
 import           UI.TUI.Widgets.Game            ( game )
 
 -- | The title widget (top)
@@ -50,17 +48,15 @@ inventory player =
     . padRight Max
     $ vBox [gold, weaponsLabel, weaponsList]
  where
-  gold         = str . ("Gold: " <>) . show . playerGold $ player
-  weaponsLabel = str
-    $ if L.null . playerWeapons $ player then "Weapons: none" else "Weapons: "
-  weaponsList = padLeft (Pad 1) . vBox . toList . playerWeapons $ player
-  toList      = fmap $ str . ("* " <>) . show
+  gold         = str . ("Gold: " <>) . show $ (player ^. playerGold)
+  weaponsLabel = str $ if L.null weapons then "Weapons: none" else "Weapons: "
+  weaponsList  = padLeft (Pad 1) . vBox $ str . ("* " <>) . show <$> weapons
+  weapons      = player ^. playerWeapons
 
 -- | The game field (center right)
 gameField :: Brogalik -> Widget ()
 gameField brogalik =
-  let terminalSize  = brogalikSize brogalik
-      gameFieldSize = _gameFieldSize (brogalikSize brogalik)
+  let gameFieldSize = _gameFieldSize (brogalik ^. brogalikSize)
   in  withBorderStyle unicodeBold
         . border
         . padLeft _leftPadding
@@ -69,7 +65,7 @@ gameField brogalik =
         . padBottom Max
         $ if minRequired gameFieldSize
             then renderGame gameFieldSize
-            else renderWarning terminalSize gameFieldSize
+            else renderWarning (brogalik ^. brogalikSize) gameFieldSize
  where
   minRequired (Size w h) = w >= _minGameFieldWidth && h >= _minGameFieldHeight
   renderGame size = game brogalik size
@@ -106,7 +102,7 @@ help =
         ]
 
 -- | The status widget (bottom right)
-status :: AppState -> Widget ()
+status :: Text -> Widget ()
 status =
   withBorderStyle unicodeBold
     . border
@@ -116,7 +112,6 @@ status =
     . padBottom Max
     . strWrap
     . unpack
-    . stateStatus
 
 -- | Constants
 _leftWidth :: Int

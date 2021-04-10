@@ -4,22 +4,21 @@ module Control.Brogalik
 
 import qualified Data.Map                      as M
 
-import           Data.Array                     ( (!)
-                                                , Ix(range)
-                                                , array
-                                                )
+import           Data.Array
 import           Data.Brogalik
 import           Data.Geom
+import           Lens.Micro.GHC
+
 
 generateBrogalik :: Size -> Brogalik
 generateBrogalik size = Brogalik
-  { brogalikSize   = size
-  , brogalikRooms  = array indexRange $ zip (range indexRange) rooms
-  , brogalikPlayer = Player { playerRoom    = Index 0
-                            , playerPos     = Pos 0 0
-                            , playerGold    = 0
-                            , playerWeapons = []
-                            }
+  { _brogalikSize   = size
+  , _brogalikRooms  = array indexRange $ zip (range indexRange) rooms
+  , _brogalikPlayer = Player { _playerRoom    = Index 0
+                             , _playerPos     = Pos 0 0
+                             , _playerGold    = 0
+                             , _playerWeapons = []
+                             }
   }
  where
   indexRange = (Index 0, Index (length rooms - 1))
@@ -34,4 +33,5 @@ mkRoom :: Pos -> Size -> Room
 mkRoom pos size = Room (Rect pos size) mempty
 
 addItem :: Pos -> Item -> Room -> Room
-addItem pos item room = room { roomItems = M.insert pos item (roomItems room) }
+addItem pos item room =
+  room & roomItems .~ M.insert pos item (room ^. roomItems)

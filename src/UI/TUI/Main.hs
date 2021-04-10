@@ -8,37 +8,40 @@ import           Brick                   hiding ( Direction )
 import           Data.Array
 import           Data.Brogalik
 import           Data.Geom
+import           Data.Maybe
 import           Data.Text
 import           Graphics.Vty.Input.Events
-import           Lens.Micro
+import           Lens.Micro.GHC
 import           UI.TUI.State
 
 type NewState = EventM () (Next AppState)
 
 -- | the module's public function
 tui :: Width -> Height -> IO ()
-tui w h = defaultMain appState (initialState $ Size w h) >>= printExitStatus
-  where printExitStatus = print . stateStatus
+tui width height = defaultMain app state >>= printExitStatus
+ where
+  state           = initialState $ Size width height
+  printExitStatus = putStrLn . unpack . _stateStatus
 
 -- | create the application state
-appState :: App AppState e ()
-appState = App { appDraw         = drawTui
-               , appChooseCursor = showFirstCursor
-               , appStartEvent   = return
-               , appHandleEvent  = handleTuiEvent
-               , appAttrMap      = const $ attrMap mempty mempty
-               }
+app :: App AppState e ()
+app = App { appDraw         = drawTui
+          , appChooseCursor = showFirstCursor
+          , appStartEvent   = return
+          , appHandleEvent  = handleTuiEvent
+          , appAttrMap      = const $ attrMap mempty mempty
+          }
 
 -- | draw the TUI
 drawTui :: AppState -> [Widget ()]
 drawTui state =
   [ vBox
-      [ W.title (stateTitle state)
+      [ W.title (state ^. stateTitle)
       , hBox
-        [ W.inventory $ state & stateBrogalik & brogalikPlayer
-        , W.gameField $ stateBrogalik state
+        [ W.inventory (state ^. stateBrogalik . brogalikPlayer)
+        , W.gameField (state ^. stateBrogalik)
         ]
-      , hBox [W.help, W.status state]
+      , hBox [W.help, W.status (state ^. stateStatus)]
       ]
   ]
 
@@ -58,31 +61,32 @@ handleTuiEvent s (VtyEvent (EvKey (KChar 'q') _)) = halt s
 handleTuiEvent s _ = continue s
 
 resizeBrogalik :: Width -> Height -> AppState -> NewState
-resizeBrogalik w h s = continue s
-  { stateStatus   = pack $ "Terminal size : " <> show w <> "x" <> show h
-  , stateBrogalik = doResize w h (stateBrogalik s)
-  }
-  where doResize w h brogalik = brogalik { brogalikSize = Size w h }
+resizeBrogalik width height state =
+  continue $ state & updateSize & updateStatus
+ where
+  updateSize = stateBrogalik . brogalikSize .~ Size width height
+  updateStatus =
+    stateStatus .~ pack ("Terminal size : " <> show width <> "x" <> show height)
 
 newGame :: AppState -> NewState
-newGame = continue . initialState . brogalikSize . stateBrogalik
+newGame = continue . initialState . _brogalikSize . _stateBrogalik
 
 movePlayer :: Direction -> AppState -> NewState
-movePlayer d s = continue s { stateStatus = pack $ "Moving " <> show d <> "..."
-                            , stateBrogalik = brogalikMove d (stateBrogalik s)
-                            }
+movePlayer direction state = continue $ state & moveBrogalik & updateStatus
+ where
+  moveBrogalik = stateBrogalik %~ brogalikMove direction
+  updateStatus = stateStatus .~ pack ("Moving " <> show direction <> "...")
 
 brogalikMove :: Direction -> Brogalik -> Brogalik
-brogalikMove direction brogalik = brogalik
-  { brogalikPlayer = player { playerPos  = newPos
-                            , playerGold = playerGold player + goldFound
-                            }
-  }
+brogalikMove direction brogalik = brogalik & updatePos & updateGold
  where
-  player    = brogalikPlayer brogalik
-  rect      = brogalikRooms brogalik ! playerRoom player & roomRect
-  newPos    = clampPos rect $ playerPos player |--> directionChanges direction
-  goldFound = 0
+  updatePos  = brogalikPlayer . playerPos .~ clampPos rect newPos
+  rect       = brogalik ^?! brogalikRooms . ix roomIndex . roomRect
+  roomIndex  = brogalik ^. brogalikPlayer . playerRoom
+  newPos     = oldPos |--> directionChanges direction
+  oldPos     = brogalik ^. brogalikPlayer . playerPos
+  updateGold = brogalikPlayer . playerGold %~ (+) goldFound
+  goldFound  = 0 -- TODO implement goldFound
 
 clampPos :: Rect -> Pos -> Pos
 clampPos (Rect (Pos rectX rectY) (Size w h)) (Pos x y) = Pos newX newY

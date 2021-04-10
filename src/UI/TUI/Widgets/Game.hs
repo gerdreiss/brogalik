@@ -15,6 +15,7 @@ import           Data.Array
 import           Data.Brogalik
 import           Data.Foldable
 import           Data.Geom
+import           Lens.Micro.GHC
 
 -- | The game field (center right)
 game :: Brogalik -> Size -> Widget ()
@@ -38,28 +39,28 @@ displayBrogalik brogalik = displayPlayer brogalik . displayRooms brogalik
 displayPlayer :: Brogalik -> Display -> Display
 displayPlayer brogalik = drawPixel playerScreenPos '@'
  where
-  playerScreenPos      = playerRoomPos <> playerPos player
-  Rect playerRoomPos _ = roomRect (brogalikRooms brogalik ! playerRoom player)
-  player               = brogalikPlayer brogalik
+  playerScreenPos      = playerRoomPos <> brogalik ^. brogalikPlayer . playerPos
+  Rect playerRoomPos _ = brogalik ^?! brogalikRooms . ix roomIndex . roomRect
+  roomIndex            = brogalik ^. brogalikPlayer . playerRoom
 
 -- | Display the rooms within the Brogalik
 displayRooms :: Brogalik -> Display -> Display
-displayRooms brogalik display = foldl' (flip displayRoom) display rooms
-  where rooms = elems (brogalikRooms brogalik)
+displayRooms brogalik display =
+  foldl' (flip displayRoom) display (brogalik ^. brogalikRooms)
 
 -- | Place the given room in the given display
 displayRoom :: Room -> Display -> Display
 displayRoom room =
   displayItems room
-    . fillRect (roomRect room) roomFloor
-    . frameRect (roomRect room) unicode
+    . fillRect (room ^. roomRect) roomFloor
+    . frameRect (room ^. roomRect) unicode
 
 -- | Place the items of the given room
 displayItems :: Room -> Display -> Display
 displayItems room display = foldl' doDisplay display items
  where
   doDisplay = flip . uncurry . displayItem $ room
-  items     = M.toList $ roomItems room
+  items     = M.toList $ _roomItems room
 
 -- | Place the given item at the given position in the room
 displayItem :: Room -> Pos -> Item -> Display -> Display
@@ -92,10 +93,10 @@ drawLine (Pos x y) length Vertical =
 -- | Fill the given rectangle with the pixel character
 fillRect :: Rect -> Pixel -> Display -> Display
 fillRect rect pixel display = display
-  { displayPixels = pixels // do
-                      x <- [rectX .. (rectX + rectW - 1)]
-                      y <- [rectY .. (rectY + rectH - 1)]
-                      return (Pos (x `mod` width) (y `mod` height), pixel)
+  { _displayPixels = pixels // do
+                       x <- [rectX .. (rectX + rectW - 1)]
+                       y <- [rectY .. (rectY + rectH - 1)]
+                       return (Pos (x `mod` width) (y `mod` height), pixel)
   }
  where
   Rect    (Pos  rectX rectY ) (Size rectW rectH) = rect

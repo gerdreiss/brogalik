@@ -62,6 +62,13 @@ instance Semigroup Pos where
 instance Monoid Pos where
   mempty = Pos 0 0
 
+instance Semigroup Rect where
+  (Rect pos1 size1) <> (Rect pos2 size2) = Rect (pos1 <> pos2) (size1 <> size2)
+
+instance Monoid Rect where
+  mempty = Rect (Pos 0 0) (Size 0 0)
+
+
 -- | Helper functions
 directionChanges :: Direction -> PosDelta
 directionChanges West  = PosDelta (-1) 0
