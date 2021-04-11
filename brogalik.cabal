@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: bd4c1e7e5646dbb2287cec6b0ec13c4338144aae6066c7442f2993b99fb19623
+-- hash: 7213dce2465e9b2e8149ae6bc5aff7a67e155ea340afb9c9784f5b390c8ded04
 
 name:           brogalik
 version:        0.1.0.0
@@ -30,10 +30,7 @@ library
       Control.Brogalik
       Data.Brogalik
       Data.Geom
-      Experimental.BrogalikStateT
-      Experimental.StateT
       UI.TUI.Main
-      UI.TUI.State
       UI.TUI.Widgets.Game
       UI.TUI.Widgets.Main
   other-modules:
@@ -48,6 +45,7 @@ library
     , containers
     , microlens-ghc
     , microlens-th
+    , mtl
     , terminal-size
     , text
     , vty
@@ -69,6 +67,7 @@ executable brogalik-exe
     , containers
     , microlens-ghc
     , microlens-th
+    , mtl
     , terminal-size
     , text
     , vty
@@ -90,6 +89,7 @@ test-suite brogalik-test
     , containers
     , microlens-ghc
     , microlens-th
+    , mtl
     , terminal-size
     , text
     , vty

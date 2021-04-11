@@ -7,7 +7,7 @@ import qualified Data.Map                      as M
 import           Data.Array
 import           Data.Brogalik
 import           Data.Geom
-import           Lens.Micro.GHC
+import           Lens.Micro.GHC                 ( over )
 
 
 generateBrogalik :: Size -> Brogalik

@@ -1,27 +1,39 @@
+{-# LANGUAGE TemplateHaskell #-}
 module UI.TUI.Main
   ( tui
   ) where
 
 import qualified UI.TUI.Widgets.Main           as W
 
-import           Brick                   hiding ( Direction )
-import           Data.Array
+import           Brick                   hiding ( Direction
+                                                , Size
+                                                )
+import           Control.Brogalik               ( generateBrogalik )
 import           Data.Brogalik
 import           Data.Geom
-import           Data.Maybe
 import           Data.Text
 import           Graphics.Vty.Input.Events
 import           Lens.Micro.GHC
-import           UI.TUI.State
+import           Lens.Micro.TH                  ( makeLenses )
 
 type NewState = EventM () (Next AppState)
 
+data AppState = AppState
+  { _stateTitle    :: Text
+  , _stateStatus   :: Text
+  , _stateBrogalik :: Brogalik
+  }
+
+makeLenses ''AppState
+
+
 -- | the module's public function
 tui :: Width -> Height -> IO ()
-tui width height = defaultMain app state >>= printExitStatus
+tui width height = defaultMain app initialState >>= printExitStatus
  where
-  state           = initialState $ Size width height
+  initialState    = initialAppState (Size width height)
   printExitStatus = putStrLn . unpack . _stateStatus
+
 
 -- | create the application state
 app :: App AppState e ()
@@ -31,6 +43,14 @@ app = App { appDraw         = drawTui
           , appHandleEvent  = handleTuiEvent
           , appAttrMap      = const $ attrMap mempty mempty
           }
+
+-- | create the initial AppState
+initialAppState :: Size -> AppState
+initialAppState size = AppState
+  { _stateTitle    = "Brogalik - Roguelike game build with Brick"
+  , _stateStatus   = "New game started"
+  , _stateBrogalik = generateBrogalik size
+  }
 
 -- | draw the TUI
 drawTui :: AppState -> [Widget ()]
@@ -61,15 +81,15 @@ handleTuiEvent s (VtyEvent (EvKey (KChar 'q') _)) = halt s
 handleTuiEvent s _ = continue s
 
 resizeBrogalik :: Width -> Height -> AppState -> NewState
-resizeBrogalik width height state =
-  continue $ state & updateSize & updateStatus
+resizeBrogalik width height appState =
+  continue $ appState & updateSize & updateStatus
  where
   updateSize = stateBrogalik . brogalikSize .~ Size width height
   updateStatus =
     stateStatus .~ pack ("Terminal size : " <> show width <> "x" <> show height)
 
 newGame :: AppState -> NewState
-newGame = continue . initialState . _brogalikSize . _stateBrogalik
+newGame = continue . initialAppState . _brogalikSize . _stateBrogalik
 
 movePlayer :: Direction -> AppState -> NewState
 movePlayer direction state = continue $ state & moveBrogalik & updateStatus
@@ -80,11 +100,11 @@ movePlayer direction state = continue $ state & moveBrogalik & updateStatus
 brogalikMove :: Direction -> Brogalik -> Brogalik
 brogalikMove direction brogalik = brogalik & updatePos & updateGold
  where
-  updatePos  = brogalikPlayer . playerPos .~ clampPos rect newPos
-  rect       = brogalik ^?! brogalikRooms . ix roomIndex . roomRect
-  roomIndex  = brogalik ^. brogalikPlayer . playerRoom
-  newPos     = oldPos |--> directionChanges direction
-  oldPos     = brogalik ^. brogalikPlayer . playerPos
+  updatePos = brogalikPlayer . playerPos .~ clampPos room newPos
+  room      = brogalik ^?! brogalikRooms . ix roomIndex . roomRect
+  roomIndex = brogalik ^. brogalikPlayer . playerRoom
+  newPos =
+    (brogalik ^. brogalikPlayer . playerPos) |--> directionChanges direction
   updateGold = brogalikPlayer . playerGold %~ (+) goldFound
   goldFound  = 0 -- TODO implement goldFound
 

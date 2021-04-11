@@ -27,6 +27,7 @@ dependencies:
 - containers
 - microlens-ghc
 - microlens-th
+- mtl
 - text
 - terminal-size
 

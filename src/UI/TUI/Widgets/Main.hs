@@ -15,10 +15,7 @@ import           Brick.Widgets.Center           ( hCenter
                                                 , vCenter
                                                 )
 import           Data.Brogalik
-import           Data.Geom                      ( Height
-                                                , Size(..)
-                                                , Width
-                                                )
+import           Data.Geom
 import           Data.Text                      ( Text
                                                 , unpack
                                                 )
