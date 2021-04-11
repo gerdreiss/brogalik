@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7213dce2465e9b2e8149ae6bc5aff7a67e155ea340afb9c9784f5b390c8ded04
+-- hash: 7fa7e993c193833381d86c2de010a8eaa769236129c765b001f223db15d9b8de
 
 name:           brogalik
 version:        0.1.0.0
@@ -37,7 +37,7 @@ library
       Paths_brogalik
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings
+  default-extensions: OverloadedStrings TemplateHaskell
   build-depends:
       array
     , base >=4.7 && <5

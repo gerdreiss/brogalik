@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module UI.TUI.Main
   ( tui
   ) where
@@ -100,13 +99,17 @@ movePlayer direction state = continue $ state & moveBrogalik & updateStatus
 brogalikMove :: Direction -> Brogalik -> Brogalik
 brogalikMove direction brogalik = brogalik & updatePos & updateGold
  where
-  updatePos = brogalikPlayer . playerPos .~ clampPos room newPos
-  room      = brogalik ^?! brogalikRooms . ix roomIndex . roomRect
-  roomIndex = brogalik ^. brogalikPlayer . playerRoom
+  -- update position
+  updatePos = brogalikPlayer . playerPos .~ clampPos (location place) newPos
+  location (PlaceRoom index) = brogalik ^?! brogalikRooms . ix index . roomRect
+  location (PlacePassage index) =
+    toRect $ brogalik ^?! brogalikPassages . ix index . passageLine
+  place = brogalik ^. brogalikPlayer . playerPlace
   newPos =
     (brogalik ^. brogalikPlayer . playerPos) |--> directionChanges direction
+  -- TODO update gold
   updateGold = brogalikPlayer . playerGold %~ (+) goldFound
-  goldFound  = 0 -- TODO implement goldFound
+  goldFound  = 0
 
 clampPos :: Rect -> Pos -> Pos
 clampPos (Rect (Pos rectX rectY) (Size w h)) (Pos x y) = Pos newX newY

@@ -1,48 +1,75 @@
 module Data.Geom where
 
 import           Data.Array                     ( Ix )
+import           Lens.Micro.GHC                 ( (^.) )
+import           Lens.Micro.TH                  ( makeLenses )
 
 -- | Types
 type Pixel = Char
-type Length = Int
-
-data Orientation = Vertical | Horizontal
 
 type X = Int
 type Y = Int
 
--- | position in the game field, starting in the top left corner
-data Pos = Pos X Y
-  deriving (Eq, Ord, Ix)
-
+type Length = Int
 type Width = Int
 type Height = Int
 
-data Size = Size Width Height
+-- | position in the game field, starting in the top left corner
+data Pos = Pos
+  { _x :: X
+  , _y :: Y
+  }
+  deriving (Eq, Ord, Ix)
 
-data Rect = Rect Pos Size
+instance Show Pos where
+  show (Pos x y) = concat ["(", show x, ",", show y, ")"]
+
+data Size = Size
+  { _width  :: Width
+  , _height :: Height
+  }
+
+instance Show Size where
+  show (Size w h) = show w <> "x" <> show h
+
+data Orientation
+  = Vertical
+  | Horizontal
+  deriving (Show)
+
+data Line = Line
+  { _lineStart       :: Pos
+  , _lineLength      :: Length
+  , _lineOrientation :: Orientation
+  }
   deriving Show
 
-data Direction = West
-               | East
-               | North
-               | South
+data Rect = Rect
+  { _rectPos  :: Pos
+  , _rectSize :: Size
+  }
+  deriving Show
+
+data Direction
+  = West
+  | East
+  | North
+  | South
   deriving (Eq, Ord, Ix, Show)
 
 data PosDelta = PosDelta X Y
 
--- | Instances
-instance Show Pos where
-  show (Pos x y) = concat ["(", show x, ",", show y, ")"]
+makeLenses ''Pos
+makeLenses ''Size
+makeLenses ''Line
+makeLenses ''Rect
 
+-- | Instances
 instance Eq Size where
   (Size wl hl) == (Size wr hr) = wl == wr && hl == hr
 
 instance Ord Size where
   (Size wl hl) <= (Size wr hr) = wl <= wr && hl <= hr
-
-instance Show Size where
-  show (Size w h) = show w <> "x" <> show h
 
 instance Semigroup Size where
   (Size w1 h1) <> (Size w2 h2) = Size newW h1
@@ -78,3 +105,11 @@ directionChanges South = PosDelta 0 1
 
 (|-->) :: Pos -> PosDelta -> Pos
 (|-->) (Pos x y) (PosDelta dx dy) = Pos (x + dx) (y + dy)
+
+toRect :: Line -> Rect
+toRect line = Rect pos size
+ where
+  pos  = line ^. lineStart
+  size = case line ^. lineOrientation of
+    Horizontal -> Size (line ^. lineLength) 1
+    Vertical   -> Size 1 (line ^. lineLength)

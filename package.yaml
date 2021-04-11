@@ -35,6 +35,7 @@ library:
   source-dirs: src
   default-extensions:
     - OverloadedStrings
+    - TemplateHaskell
 
 executables:
   brogalik-exe:

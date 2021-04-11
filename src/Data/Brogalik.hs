@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Data.Brogalik where
 
 import qualified Data.Map                      as M
@@ -6,23 +5,39 @@ import qualified Data.Map                      as M
 import           Data.Array                     ( Array
                                                 , Ix
                                                 )
-import           Data.Geom                      ( Pixel
+import           Data.Geom                      ( Line
+                                                , Pixel
                                                 , Pos
                                                 , Rect
                                                 , Size
                                                 )
 import           Lens.Micro.TH                  ( makeLenses )
 
-data Weapon = Sword
-            | Axe
+data Weapon
+  = Sword
+  | Axe
   deriving (Show)
 
-data Item = GoldItem Int
-          | WeaponItem Weapon
+data Item
+  = GoldItem Int
+  | WeaponItem Weapon
   deriving (Show)
 
-newtype Index a = Index Int
+newtype Index a =
+  Index Int
   deriving (Eq, Ord, Ix, Show)
+
+data Place
+  = PlaceRoom (Index Room)
+  | PlacePassage (Index Passage)
+  deriving (Show)
+
+data Passage = Passage
+  { _passageLine       :: Line
+  , _passageLeftPlace  :: Place
+  , _passageRightPlace :: Place
+  }
+  deriving Show
 
 data Room = Room
   { _roomRect  :: Rect
@@ -31,7 +46,7 @@ data Room = Room
   deriving Show
 
 data Player = Player
-  { _playerRoom    :: Index Room
+  { _playerPlace   :: Place
   , _playerPos     :: Pos
   , _playerGold    :: Int
   , _playerWeapons :: [Weapon]
@@ -39,9 +54,10 @@ data Player = Player
   deriving Show
 
 data Brogalik = Brogalik
-  { _brogalikRooms  :: Array (Index Room) Room
-  , _brogalikPlayer :: Player
-  , _brogalikSize   :: Size
+  { _brogalikRooms    :: Array (Index Room) Room
+  , _brogalikPassages :: Array (Index Passage) Passage
+  , _brogalikPlayer   :: Player
+  , _brogalikSize     :: Size
   }
   deriving Show
 
@@ -51,7 +67,7 @@ data Display = Display
   }
   deriving Show
 
-
+makeLenses ''Passage
 makeLenses ''Room
 makeLenses ''Player
 makeLenses ''Brogalik

@@ -13,6 +13,7 @@ import           Brick.Widgets.Border.Style
 import           Control.Monad.State
 import           Data.Array
 import           Data.Brogalik
+import           Data.Foldable                  ( for_ )
 import           Data.Geom
 import           Lens.Micro.GHC
 
@@ -30,33 +31,39 @@ renderBrogalik brogalik = do
 -- | Render the display into a string
 renderDisplay :: State Display String
 renderDisplay = do
-  (Display (Size width height) pixels) <- get
-  return $ unlines
-    [ [ pixels ! Pos x y | x <- [0 .. width - 1] ] | y <- [0 .. height - 1] ]
+  Display (Size w h) pixels <- get
+  return
+    $ unlines [ [ pixels ! Pos x y | x <- [0 .. w - 1] ] | y <- [0 .. h - 1] ]
 
 -- | Display the Brogalik
 displayBrogalik :: Brogalik -> State Display ()
 displayBrogalik brogalik = do
   displayRooms brogalik
+  displayPassages brogalik
   displayPlayer brogalik
 
 -- | Display the player within the Brogalik
 displayPlayer :: Brogalik -> State Display ()
 displayPlayer brogalik = drawPixel playerScreenPos '@'
  where
-  playerScreenPos      = playerRoomPos <> brogalik ^. brogalikPlayer . playerPos
-  Rect playerRoomPos _ = brogalik ^?! brogalikRooms . ix roomIndex . roomRect
-  roomIndex            = brogalik ^. brogalikPlayer . playerRoom
+  playerScreenPos =
+    playerLocation currentPlace <> brogalik ^. brogalikPlayer . playerPos
+  playerLocation (PlaceRoom index) =
+    brogalik ^?! brogalikRooms . ix index . roomRect . rectPos
+  playerLocation (PlacePassage index) =
+    brogalik ^?! brogalikPassages . ix index . passageLine . lineStart
+  currentPlace = brogalik ^. brogalikPlayer . playerPlace
 
 -- | Display the rooms within the Brogalik
 displayRooms :: Brogalik -> State Display ()
-displayRooms brogalik = mapM_ displayRoom (brogalik ^. brogalikRooms)
+displayRooms brogalik = for_ (brogalik ^. brogalikRooms) displayRoom
 
--- | Place the given room in the given display
+-- | Place the given room within the Brogalik
 displayRoom :: Room -> State Display ()
 displayRoom room = do
-  frameRect (room ^. roomRect) unicode
-  fillRect (room ^. roomRect) roomFloor
+  let rect = room ^. roomRect
+  frameRect rect unicode
+  fillRect rect roomFloor
   displayItems room
 
 -- | Place the items of the given room
@@ -68,35 +75,44 @@ displayItems room = mapM_ doDisplay items
 
 -- | Place the given item at the given position in the room
 displayItem :: Room -> Pos -> Item -> State Display ()
-displayItem room itemPos item = drawPixel (roomPos <> itemPos) (itemPixel item)
-  where Rect roomPos _ = room ^. roomRect
+displayItem room itemPos item =
+  drawPixel (room ^. roomRect . rectPos <> itemPos) (itemPixel item)
+
+-- | Place the given passages within the Brogalik
+displayPassages :: Brogalik -> State Display ()
+displayPassages brogalik = mapM_ displayPassage (brogalik ^. brogalikPassages)
+
+-- | Place the given passage within the Brogalik
+displayPassage :: Passage -> State Display ()
+displayPassage passage = drawLine (passage ^. passageLine) '#'
 
 -- | Draw borders around the given rectangle
 frameRect :: Rect -> BorderStyle -> State Display ()
-frameRect (Rect (Pos x y) (Size w h)) borderStyle = do
+frameRect rect borderStyle = do
+  let Rect (Pos x y) (Size w h) = rect
+  -- draw corners
   drawPixel (Pos (x - 1) (y - 1)) (bsCornerTL borderStyle)
   drawPixel (Pos (x + w) (y - 1)) (bsCornerTR borderStyle)
   drawPixel (Pos (x - 1) (y + h)) (bsCornerBL borderStyle)
   drawPixel (Pos (x + w) (y + h)) (bsCornerBR borderStyle)
-  drawLine (Pos x (y - 1)) (x + w - 1) Horizontal (bsHorizontal borderStyle)
-  drawLine (Pos x (y + h)) (x + w - 1) Horizontal (bsHorizontal borderStyle)
-  drawLine (Pos (x + w) y) (y + h - 1) Vertical   (bsVertical borderStyle)
-  drawLine (Pos (x - 1) y) (y + h - 1) Vertical   (bsVertical borderStyle)
+  -- draw walls
+  drawLine (Line (Pos x (y - 1)) w Horizontal) (bsHorizontal borderStyle)
+  drawLine (Line (Pos x (y + h)) w Horizontal) (bsHorizontal borderStyle)
+  drawLine (Line (Pos (x + w) y) h Vertical)   (bsVertical borderStyle)
+  drawLine (Line (Pos (x - 1) y) h Vertical)   (bsVertical borderStyle)
 
 -- | draw a pixel
 drawPixel :: Pos -> Pixel -> State Display ()
-drawPixel (Pos x y) = fillRect $ Rect (Pos x y) (Size 1 1)
+drawPixel pos = fillRect $ Rect pos (Size 1 1)
 
 -- | draw a line
-drawLine :: Pos -> Length -> Orientation -> Pixel -> State Display ()
-drawLine (Pos x y) length Horizontal =
-  fillRect $ Rect (Pos x y) (Size (length - x + 1) 1)
-drawLine (Pos x y) length Vertical =
-  fillRect $ Rect (Pos x y) (Size 1 (length - y + 1))
+drawLine :: Line -> Pixel -> State Display ()
+drawLine (Line pos length Horizontal) = fillRect $ Rect pos (Size length 1)
+drawLine (Line pos length Vertical  ) = fillRect $ Rect pos (Size 1 length)
 
 -- | Fill the given rectangle with the pixel character
 fillRect :: Rect -> Pixel -> State Display ()
-fillRect (Rect (Pos rectX rectY) (Size rectW rectH)) pixel = do
+fillRect rect pixel = do
   Size displayW displayH <- gets (^. displaySize)
   modify $ over
     displayPixels
@@ -105,11 +121,11 @@ fillRect (Rect (Pos rectX rectY) (Size rectW rectH)) pixel = do
       y <- [rectY .. (rectY + rectH - 1)]
       return (Pos (x `mod` displayW) (y `mod` displayH), pixel)
     )
+  where Rect (Pos rectX rectY) (Size rectW rectH) = rect
 
 -- | Make a display of given size filled with the given pixel character
 mkDisplay :: Size -> Pixel -> Display
 mkDisplay size pixel = Display size pixels
  where
   pixels    = array cellRange $ (, pixel) <$> range cellRange
-  cellRange = (Pos 0 0, Pos (w - 1) (h - 1))
-  Size w h  = size
+  cellRange = (Pos 0 0, Pos (size ^. width - 1) (size ^. height - 1))
