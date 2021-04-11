@@ -26,12 +26,11 @@ generateBrogalik size = Brogalik
     [ addItem (Pos 4 3) (GoldItem 69) $ mkRoom (Pos 1 1) (Size 16 5)
     , addItem (Pos 2 2) (WeaponItem Axe) $ mkRoom (Pos 48 10) (Size 12 6)
     , addItem (Pos 2 2) (WeaponItem Axe) $ mkRoom (Pos 4 16) (Size 12 6)
-    , addItem (Pos 2 2) (WeaponItem Sword) $ mkRoom (Pos 54 30) (Size 10 5)
+    , addItem (Pos 2 2) (WeaponItem Sword) $ mkRoom (Pos 64 22) (Size 10 5)
     ]
 
 mkRoom :: Pos -> Size -> Room
 mkRoom pos size = Room (Rect pos size) mempty
 
 addItem :: Pos -> Item -> Room -> Room
-addItem pos item room =
-  room & roomItems .~ M.insert pos item (room ^. roomItems)
+addItem pos item = over roomItems (M.insert pos item)

@@ -64,11 +64,10 @@ gameField brogalik =
         . padRight Max
         . padBottom Max
         $ if minRequired gameFieldSize
-            then renderGame gameFieldSize
+            then game brogalik gameFieldSize
             else renderWarning (brogalik ^. brogalikSize) gameFieldSize
  where
   minRequired (Size w h) = w >= _minGameFieldWidth && h >= _minGameFieldHeight
-  renderGame size = game brogalik size
   renderWarning terminalSize gameFieldSize =
     str
       . L.concat
