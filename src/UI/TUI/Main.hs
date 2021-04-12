@@ -112,7 +112,7 @@ brogalikMove direction brogalik = brogalik & updatePos & updateGold
   goldFound  = 0
 
 clampPos :: Rect -> Pos -> Pos
-clampPos (Rect (Pos rectX rectY) (Size w h)) (Pos x y) = Pos newX newY
+clampPos (Rect rpos rsize) (Pos px py) = Pos newX newY
  where
-  newX = clamp (rectX - 1) (rectX + w - 2) x
-  newY = clamp (rectY - 1) (rectY + h - 2) y
+  newX = clamp (rpos ^. x - 1) (rpos ^. x + rsize ^. width - 2) px
+  newY = clamp (rpos ^. y - 1) (rpos ^. y + rsize ^. height - 2) py

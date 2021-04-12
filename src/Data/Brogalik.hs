@@ -5,12 +5,7 @@ import qualified Data.Map                      as M
 import           Data.Array                     ( Array
                                                 , Ix
                                                 )
-import           Data.Geom                      ( Line
-                                                , Pixel
-                                                , Pos
-                                                , Rect
-                                                , Size
-                                                )
+import           Data.Geom
 import           Lens.Micro.TH                  ( makeLenses )
 
 data Weapon
@@ -84,6 +79,16 @@ itemPixel :: Item -> Pixel
 itemPixel (GoldItem   _    ) = '$'
 itemPixel (WeaponItem Axe  ) = 'T'
 itemPixel (WeaponItem Sword) = '!'
+
+line :: X -> Y -> Length -> Orientation -> Line
+line x y = Line (Pos x y)
+
+placeRoom :: Int -> Place
+placeRoom index = PlaceRoom (Index index)
+
+room :: X -> Y -> Width -> Height -> Room
+room x y w h =
+  Room { _roomRect = Rect (Pos x y) (Size w h), _roomItems = mempty }
 
 
 --instance Semigroup Display where
