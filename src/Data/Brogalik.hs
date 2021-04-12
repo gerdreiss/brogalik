@@ -36,6 +36,7 @@ data Passage = Passage
 data Room = Room
   { _roomRect  :: Rect
   , _roomItems :: M.Map Pos Item
+  , _roomNbors :: M.Map Pos Place
   }
   deriving Show
 
@@ -86,8 +87,10 @@ placeRoom :: Int -> Place
 placeRoom index = PlaceRoom (Index index)
 
 room :: X -> Y -> Width -> Height -> Room
-room x y w h =
-  Room { _roomRect = Rect (Pos x y) (Size w h), _roomItems = mempty }
+room x y w h = Room { _roomRect  = Rect (Pos x y) (Size w h)
+                    , _roomItems = mempty
+                    , _roomNbors = mempty
+                    }
 
 
 --instance Semigroup Display where
