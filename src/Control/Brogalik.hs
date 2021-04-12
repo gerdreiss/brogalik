@@ -37,12 +37,18 @@ generateBrogalik size = Brogalik
     array passageIndexRange $ zip (range passageIndexRange) passages
   passageIndexRange = (Index 0, Index (length passages - 1))
   passages =
-    [ Passage (line 17 3 39 Horizontal)  (placeRoom 0) (placeRoom 3)
-    , Passage (line 57 7 13 Vertical)    (placeRoom 0) (placeRoom 3)
-    , Passage (line 16 24 38 Horizontal) (placeRoom 0) (placeRoom 3)
-    , Passage (line 14 18 6 Vertical)    (placeRoom 0) (placeRoom 3)
+    [ Passage (line 17 3 39 Horizontal)
+              (M.fromList [nborPosPlace 17 3 0, nborPosPlace 56 3 3])
+    , Passage (line 57 7 13 Vertical)
+              (M.fromList [nborPosPlace 57 7 3, nborPosPlace 57 20 4])
+    , Passage (line 16 24 38 Horizontal)
+              (M.fromList [nborPosPlace 16 24 4, nborPosPlace 54 24 2])
+    , Passage (line 14 18 6 Vertical)
+              (M.fromList [nborPosPlace 14 18 2, nborPosPlace 14 24 1])
     ]
 
 addItem :: X -> Y -> Item -> Room -> Room
 addItem x y item = over roomItems (M.insert (Pos x y) item)
 
+nborPosPlace :: X -> Y -> Int -> (Pos, Place)
+nborPosPlace x y i = (Pos x y, PlaceRoom (Index i))

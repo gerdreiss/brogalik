@@ -28,9 +28,8 @@ data Place
   deriving (Show)
 
 data Passage = Passage
-  { _passageLine       :: Line
-  , _passageLeftPlace  :: Place
-  , _passageRightPlace :: Place
+  { _passageLine  :: Line
+  , _passageNbors :: M.Map Pos Place
   }
   deriving Show
 
